@@ -1,4 +1,4 @@
-## Research-Project-Management
+## Research-Collaboration-App
 Roles
 1) Admin
 2) Professor (Research Lead)  
