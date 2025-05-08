@@ -1,4 +1,4 @@
-package com.project.collabrix.ui.screens.Student.Components
+package andorid.example.collabrix.View.StudentUi
 
 import andorid.example.collabrix.Model.StudentModel.StudentProfile
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +25,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,28 +36,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun UserProfileEdit(
-    profile: StudentProfile,
-    onProfileUpdate: (StudentProfile) -> Unit
+    profile: StudentProfile
 ) {
     var email by remember { mutableStateOf(profile.email) }
     var college by remember { mutableStateOf(profile.college) }
     var year by remember { mutableStateOf(profile.year) }
-
-    // Update parent profile when local state changes
-    LaunchedEffect(email, college, year) {
-        onProfileUpdate(
-            profile.copy(
-                email = email,
-                college = college,
-                year = year
-            )
-        )
-    }
 
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
@@ -148,19 +138,9 @@ fun UserProfileEdit(
 
 @Composable
 fun StudentDescriptionEdit(
-    profile: StudentProfile,
-    onProfileUpdate: (StudentProfile) -> Unit
+    profile: StudentProfile
 ) {
     var description by remember { mutableStateOf(profile.description) }
-
-    // Update parent profile when local state changes
-    LaunchedEffect(description) {
-        onProfileUpdate(
-            profile.copy(
-                description = description
-            )
-        )
-    }
 
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
@@ -185,20 +165,10 @@ fun StudentDescriptionEdit(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UserSkillsEdit(
-    profile: StudentProfile,
-    onProfileUpdate: (StudentProfile) -> Unit
+    profile: StudentProfile
 ) {
     var myskill by remember { mutableStateOf("") }
     var skills by remember { mutableStateOf(profile.skill) }
-
-    // Update parent profile when skills change
-    LaunchedEffect(skills) {
-        onProfileUpdate(
-            profile.copy(
-                skill = skills
-            )
-        )
-    }
 
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
@@ -252,23 +222,11 @@ fun UserSkillsEdit(
 
 @Composable
 fun EducationalHistoryEdit(
-    profile: StudentProfile,
-    onProfileUpdate: (StudentProfile) -> Unit
+    profile: StudentProfile
 ) {
     var college by remember { mutableStateOf(profile.college) }
     var department by remember { mutableStateOf(profile.department) }
     var year by remember { mutableStateOf(profile.year) }
-
-    // Update parent profile when education details change
-    LaunchedEffect(college, department, year) {
-        onProfileUpdate(
-            profile.copy(
-                college = college,
-                department = department,
-                year = year
-            )
-        )
-    }
 
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
