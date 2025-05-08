@@ -1,4 +1,4 @@
-package com.project.collabrix.domain.repository
+package com.project.collabrix.data.repository
 
 import com.project.collabrix.domain.model.AuthTokens
 import com.project.collabrix.domain.model.User

@@ -1,7 +1,7 @@
 package com.project.collabrix.di
 
 import com.project.collabrix.data.api.AuthApiService
-import com.project.collabrix.data.remote.ProjectApi
+import com.project.collabrix.data.api.ProjectApi
 import com.project.collabrix.data.repository.ProjectRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -14,7 +14,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.project.collabrix.data.local.UserPreferences
-import kotlinx.coroutines.runBlocking
 
 @Module
 @InstallIn(SingletonComponent::class)

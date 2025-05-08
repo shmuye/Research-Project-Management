@@ -4,7 +4,7 @@ import android.content.Context
 import com.project.collabrix.data.api.AuthApiService
 import com.project.collabrix.data.local.UserPreferences
 import com.project.collabrix.data.repository.AuthRepositoryImpl
-import com.project.collabrix.domain.repository.AuthRepository
+import com.project.collabrix.data.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

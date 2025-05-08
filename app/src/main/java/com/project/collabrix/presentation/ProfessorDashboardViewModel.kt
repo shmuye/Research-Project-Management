@@ -2,7 +2,7 @@ package com.project.collabrix.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.project.collabrix.data.model.Project
+import com.project.collabrix.data.dto.Project
 import com.project.collabrix.data.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

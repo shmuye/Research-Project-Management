@@ -1,4 +1,4 @@
-package com.project.collabrix.ui.screens.main.professor.dashboard
+package com.project.collabrix.ui.screens.professor.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,16 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.presentation.ProfessorDashboardViewModel
 import com.project.collabrix.presentation.ProjectUiState
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.res.painterResource
@@ -32,13 +28,12 @@ import com.project.collabrix.R
 import com.project.collabrix.data.local.UserPreferences
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import com.project.collabrix.data.dto.Project
 
 enum class ProfessorPage(val label: String) {
     Dashboard("Dashboard"),
@@ -242,7 +237,7 @@ private fun getActiveProjectsCount(uiState: ProjectUiState): Int =
     if (uiState is ProjectUiState.Success) uiState.projects.size else 0
 
 @Composable
-private fun ProjectCardFigmaStyle(project: com.project.collabrix.data.model.Project) {
+private fun ProjectCardFigmaStyle(project: Project) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = Color.White,

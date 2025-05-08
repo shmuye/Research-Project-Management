@@ -1,4 +1,4 @@
-package com.project.collabrix.data.model
+package com.project.collabrix.data.dto
 
 data class Project(
     val id: Int,

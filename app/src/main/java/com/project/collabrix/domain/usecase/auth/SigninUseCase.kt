@@ -2,7 +2,7 @@ package com.project.collabrix.domain.usecase.auth
 
 import com.project.collabrix.domain.model.AuthTokens
 import com.project.collabrix.domain.model.User
-import com.project.collabrix.domain.repository.AuthRepository
+import com.project.collabrix.data.repository.AuthRepository
 import javax.inject.Inject
 
 class SigninUseCase @Inject constructor(
