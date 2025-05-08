@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  hash         String
+  department   String?
+  isActive     Boolean @default(true)
+  hashedRt     String?
+  name         String?
+  role         Role
+  bio          String?
+  skills       String[] @default([])
+  researchInterests String?
+  profile      Profile?
+  projects     Project[]     @relation("ProfessorProjects")
+  applications Application[] @relation("StudentApplications")
+}
+
+model Profile {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  department   String?
+  interests    String?
+  publications String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id            Int           @id @default(autoincrement())
+  title         String
+  description   String
+  requirements  String[]
+  startDate     DateTime
+  endDate       DateTime
+  deadline      DateTime
+  professorId   Int
+  professor     User          @relation("ProfessorProjects", fields: [professorId], references: [id], onDelete: Cascade)
+  applications  Application[] @relation("ProjectApplications")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Application {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  projectId  Int
+  status     ApplicationStatus @default(PENDING)
+
+  student    User     @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  project    Project  @relation("ProjectApplications", fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  ADMIN
+  PROFESSOR
+  STUDENT
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
