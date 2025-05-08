@@ -24,6 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.R
 import com.project.collabrix.presentation.auth.AuthState
 import com.project.collabrix.presentation.auth.AuthViewModel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 enum class UserRole {
     STUDENT, PROFESSOR, ADMIN
@@ -70,9 +72,11 @@ fun LoginScreen(
             .fillMaxSize()
             .background(backgroundColor)
     ) {
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -216,8 +220,6 @@ fun LoginScreen(
                     fontSize = 14.sp
                 )
             }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             // Login button
             Button(

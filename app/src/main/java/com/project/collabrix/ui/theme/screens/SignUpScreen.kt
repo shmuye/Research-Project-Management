@@ -24,6 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.R
 import com.project.collabrix.presentation.auth.AuthState
 import com.project.collabrix.presentation.auth.AuthViewModel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun SignUpScreen(
@@ -67,9 +69,11 @@ fun SignUpScreen(
             .fillMaxSize()
             .background(backgroundColor)
     ) {
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -241,8 +245,6 @@ fun SignUpScreen(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             // Sign Up button
             Button(

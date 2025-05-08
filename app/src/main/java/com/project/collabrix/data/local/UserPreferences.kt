@@ -10,7 +10,9 @@ import com.project.collabrix.domain.model.AuthTokens
 import com.project.collabrix.domain.model.User
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -69,5 +71,9 @@ class UserPreferences @Inject constructor(
             preferences.remove(USER_FIRST_NAME)
             preferences.remove(USER_LAST_NAME)
         }
+    }
+
+    fun getAccessTokenSync(): String? = runBlocking {
+        dataStore.data.map { it[ACCESS_TOKEN] }.firstOrNull()
     }
 } 
