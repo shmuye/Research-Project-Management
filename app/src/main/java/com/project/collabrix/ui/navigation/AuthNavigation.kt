@@ -8,12 +8,19 @@ import com.project.collabrix.ui.theme.screens.ForgotPasswordScreen
 import com.project.collabrix.ui.theme.screens.LandingScreen
 import com.project.collabrix.ui.theme.screens.LoginScreen
 import com.project.collabrix.ui.theme.screens.SignUpScreen
+import com.project.collabrix.ui.theme.screens.UserRole
+import com.project.collabrix.ui.theme.screens.main.AdminMainScreen
+import com.project.collabrix.ui.theme.screens.main.ProfessorMainScreen
+import com.project.collabrix.ui.theme.screens.main.StudentMainScreen
 
 sealed class AuthScreen(val route: String) {
     object Landing : AuthScreen("landing")
     object Login : AuthScreen("login")
     object SignUp : AuthScreen("signup")
     object ForgotPassword : AuthScreen("forgot_password")
+    object StudentMain : AuthScreen("student_main")
+    object ProfessorMain : AuthScreen("professor_main")
+    object AdminMain : AuthScreen("admin_main")
 }
 
 @Composable
@@ -32,10 +39,17 @@ fun AuthNavigation(navController: NavHostController) {
         
         composable(AuthScreen.Login.route) {
             LoginScreen(
-                onLogin = {
-                    // Navigate to main app screen
-                    navController.navigate("main") {
-                        popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                onLogin = { userRole ->
+                    when (userRole) {
+                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
+                        UserRole.PROFESSOR -> navController.navigate(AuthScreen.ProfessorMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
+                        UserRole.ADMIN -> navController.navigate(AuthScreen.AdminMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
                     }
                 },
                 onSignUp = {
@@ -49,10 +63,17 @@ fun AuthNavigation(navController: NavHostController) {
         
         composable(AuthScreen.SignUp.route) {
             SignUpScreen(
-                onSignUp = {
-                    // Navigate to main app screen
-                    navController.navigate("main") {
-                        popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                onSignUp = { userRole ->
+                    when (userRole) {
+                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
+                        UserRole.PROFESSOR -> navController.navigate(AuthScreen.ProfessorMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
+                        UserRole.ADMIN -> navController.navigate(AuthScreen.AdminMain.route) {
+                            popUpTo(AuthScreen.Landing.route) { inclusive = true }
+                        }
                     }
                 },
                 onLogin = {
@@ -68,6 +89,36 @@ fun AuthNavigation(navController: NavHostController) {
                 },
                 onBackToLogin = {
                     navController.navigate(AuthScreen.Login.route)
+                }
+            )
+        }
+
+        composable(AuthScreen.StudentMain.route) {
+            StudentMainScreen(
+                onLogout = {
+                    navController.navigate(AuthScreen.Landing.route) {
+                        popUpTo(AuthScreen.StudentMain.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(AuthScreen.ProfessorMain.route) {
+            ProfessorMainScreen(
+                onLogout = {
+                    navController.navigate(AuthScreen.Landing.route) {
+                        popUpTo(AuthScreen.ProfessorMain.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(AuthScreen.AdminMain.route) {
+            AdminMainScreen(
+                onLogout = {
+                    navController.navigate(AuthScreen.Landing.route) {
+                        popUpTo(AuthScreen.AdminMain.route) { inclusive = true }
+                    }
                 }
             )
         }

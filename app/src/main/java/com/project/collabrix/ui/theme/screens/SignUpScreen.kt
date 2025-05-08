@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,13 +25,9 @@ import com.project.collabrix.R
 import com.project.collabrix.presentation.auth.AuthState
 import com.project.collabrix.presentation.auth.AuthViewModel
 
-enum class SignUpRole {
-    STUDENT, PROFESSOR
-}
-
 @Composable
 fun SignUpScreen(
-    onSignUp: () -> Unit,
+    onSignUp: (UserRole) -> Unit,
     onLogin: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -38,7 +35,7 @@ fun SignUpScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf(SignUpRole.STUDENT) }
+    var selectedRole by remember { mutableStateOf(UserRole.STUDENT) }
     val backgroundColor = Color(0xFFF5F6FA)
     val primaryColor = Color(0xFF3B82F6)
     val textColor = Color(0xFF1F2937)
@@ -53,7 +50,7 @@ fun SignUpScreen(
                     message = "Account created successfully!",
                     duration = SnackbarDuration.Short
                 )
-                onSignUp()
+                onSignUp(selectedRole)
             }
             is AuthState.Error -> {
                 snackbarHostState.showSnackbar(
@@ -229,7 +226,8 @@ fun SignUpScreen(
                     .padding(bottom = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SignUpRole.values().forEach { role ->
+                // Only show STUDENT and PROFESSOR roles
+                listOf(UserRole.STUDENT, UserRole.PROFESSOR).forEach { role ->
                     FilterChip(
                         selected = selectedRole == role,
                         onClick = { selectedRole = role },

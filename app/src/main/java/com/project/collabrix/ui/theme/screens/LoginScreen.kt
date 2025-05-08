@@ -31,7 +31,7 @@ enum class UserRole {
 
 @Composable
 fun LoginScreen(
-    onLogin: () -> Unit,
+    onLogin: (UserRole) -> Unit,
     onSignUp: () -> Unit,
     onForgotPassword: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
@@ -53,7 +53,7 @@ fun LoginScreen(
                     message = "Logged in successfully!",
                     duration = SnackbarDuration.Short
                 )
-                onLogin()
+                onLogin(selectedRole)
             }
             is AuthState.Error -> {
                 snackbarHostState.showSnackbar(
