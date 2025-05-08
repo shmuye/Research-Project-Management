@@ -1,7 +1,7 @@
-package com.project.collabrix.ui.theme.screens.main
+package com.project.collabrix.ui.screens.main
 
 import androidx.compose.runtime.Composable
-import com.project.collabrix.ui.theme.screens.main.professor.dashboard.ProfessorDashboardScreen
+import com.project.collabrix.ui.screens.main.professor.dashboard.ProfessorDashboardScreen
 
 @Composable
 fun ProfessorMainScreen(

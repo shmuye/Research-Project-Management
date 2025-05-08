@@ -1,4 +1,4 @@
-package com.project.collabrix.ui.theme.screens.main.professor.dashboard
+package com.project.collabrix.ui.screens.main.professor.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -4,14 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.project.collabrix.ui.theme.screens.ForgotPasswordScreen
-import com.project.collabrix.ui.theme.screens.LandingScreen
-import com.project.collabrix.ui.theme.screens.LoginScreen
-import com.project.collabrix.ui.theme.screens.SignUpScreen
-import com.project.collabrix.ui.theme.screens.UserRole
-import com.project.collabrix.ui.theme.screens.main.AdminMainScreen
-import com.project.collabrix.ui.theme.screens.main.ProfessorMainScreen
-import com.project.collabrix.ui.theme.screens.main.StudentMainScreen
+import com.project.collabrix.ui.screens.ForgotPasswordScreen
+import com.project.collabrix.ui.screens.LandingScreen
+import com.project.collabrix.ui.screens.LoginScreen
+import com.project.collabrix.ui.screens.SignUpScreen
+import com.project.collabrix.ui.screens.UserRole
+import com.project.collabrix.ui.screens.main.AdminMainScreen
+import com.project.collabrix.ui.screens.main.ProfessorMainScreen
+import com.project.collabrix.ui.screens.main.StudentMainScreen
 
 sealed class AuthScreen(val route: String) {
     object Landing : AuthScreen("landing")

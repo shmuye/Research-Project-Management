@@ -1,4 +1,4 @@
-package com.project.collabrix.presentation.Student.Components
+package com.project.collabrix.ui.screens.Student.Components
 
 import andorid.example.collabrix.Model.StudentModel.StudentProfile
 import androidx.compose.foundation.layout.Arrangement

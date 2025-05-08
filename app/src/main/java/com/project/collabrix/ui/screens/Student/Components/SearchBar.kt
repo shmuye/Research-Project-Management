@@ -1,4 +1,4 @@
-package com.project.collabrix.presentation.Student.Components
+package com.project.collabrix.ui.screens.Student.Components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -1,4 +1,4 @@
-package com.project.collabrix.ui.theme.screens.main.professor.dashboard
+package com.project.collabrix.ui.screens.main.professor.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -309,9 +309,15 @@ private fun SidebarContent(
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        SidebarButton("Dashboard", selectedPage == ProfessorPage.Dashboard) { onSelectPage(ProfessorPage.Dashboard); onClose() }
-        SidebarButton("My Projects", selectedPage == ProfessorPage.MyProjects) { onSelectPage(ProfessorPage.MyProjects); onClose() }
-        SidebarButton("Applications", selectedPage == ProfessorPage.Applications) { onSelectPage(ProfessorPage.Applications); onClose() }
+        SidebarButton("Dashboard", selectedPage == ProfessorPage.Dashboard) { onSelectPage(
+            ProfessorPage.Dashboard
+        ); onClose() }
+        SidebarButton("My Projects", selectedPage == ProfessorPage.MyProjects) { onSelectPage(
+            ProfessorPage.MyProjects
+        ); onClose() }
+        SidebarButton("Applications", selectedPage == ProfessorPage.Applications) { onSelectPage(
+            ProfessorPage.Applications
+        ); onClose() }
         SidebarButton("Profile", selectedPage == ProfessorPage.Profile) { onSelectPage(ProfessorPage.Profile); onClose() }
         Spacer(modifier = Modifier.height(16.dp))
         Row(

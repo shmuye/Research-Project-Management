@@ -1,4 +1,4 @@
-package com.project.collabrix.ui.theme.screens.main
+package com.project.collabrix.ui.screens.main
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
