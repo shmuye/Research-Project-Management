@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.project.collabrix.ui.screens.auth.ForgotPasswordScreen
 import com.project.collabrix.ui.screens.auth.LandingScreen
 import com.project.collabrix.ui.screens.auth.LoginScreen
@@ -12,6 +14,7 @@ import com.project.collabrix.ui.screens.auth.UserRole
 import com.project.collabrix.ui.screens.main.AdminMainScreen
 import com.project.collabrix.ui.screens.main.ProfessorMainScreen
 import com.project.collabrix.ui.screens.main.StudentMainScreen
+import com.project.collabrix.ui.screens.professor.dashboard.ProjectDetailScreen
 
 sealed class AuthScreen(val route: String) {
     object Landing : AuthScreen("landing")
@@ -21,6 +24,9 @@ sealed class AuthScreen(val route: String) {
     object StudentMain : AuthScreen("student_main")
     object ProfessorMain : AuthScreen("professor_main")
     object AdminMain : AuthScreen("admin_main")
+    object ProjectDetail : AuthScreen("project_detail/{projectId}") {
+        fun createRoute(projectId: Int) = "project_detail/$projectId"
+    }
 }
 
 @Composable
@@ -109,7 +115,8 @@ fun AuthNavigation(navController: NavHostController) {
                     navController.navigate(AuthScreen.Landing.route) {
                         popUpTo(AuthScreen.ProfessorMain.route) { inclusive = true }
                     }
-                }
+                },
+                navController = navController
             )
         }
 
@@ -121,6 +128,14 @@ fun AuthNavigation(navController: NavHostController) {
                     }
                 }
             )
+        }
+
+        composable(
+            route = AuthScreen.ProjectDetail.route,
+            arguments = listOf(navArgument("projectId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val projectId = backStackEntry.arguments?.getInt("projectId") ?: return@composable
+            ProjectDetailScreen(projectId = projectId, navController = navController)
         }
     }
 } 

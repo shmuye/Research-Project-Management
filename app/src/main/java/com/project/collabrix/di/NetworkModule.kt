@@ -14,6 +14,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.project.collabrix.data.local.UserPreferences
+import com.project.collabrix.data.api.UserApi
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -66,4 +67,9 @@ object NetworkModule {
     @Singleton
     fun provideProjectRepository(api: ProjectApi): ProjectRepository =
         ProjectRepository(api)
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): UserApi =
+        retrofit.create(UserApi::class.java)
 } 
