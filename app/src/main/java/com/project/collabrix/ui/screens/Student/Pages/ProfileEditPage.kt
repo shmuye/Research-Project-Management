@@ -1,9 +1,6 @@
 package andorid.example.collabrix.View.StudentUi.Pages
 
-import andorid.example.collabrix.View.StudentUi.Components.EducationalHistoryEdit
-import andorid.example.collabrix.View.StudentUi.Components.StudentDescriptionEdit
-import andorid.example.collabrix.View.StudentUi.Components.UserProfileEdit
-import andorid.example.collabrix.View.StudentUi.Components.UserSkillsEdit
+
 import android.example.collabrix.ViewModel.StudentState
 import android.example.collabrix.ViewModel.StudentViewModel
 import androidx.compose.foundation.Image
@@ -44,7 +41,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.project.collabrix.R
+import com.project.collabrix.ui.screens.Student.Components.EducationalHistoryEdit
 import com.project.collabrix.ui.screens.Student.Components.SideBar
+import com.project.collabrix.ui.screens.Student.Components.StudentDescriptionEdit
+import com.project.collabrix.ui.screens.Student.Components.UserProfileEdit
+import com.project.collabrix.ui.screens.Student.Components.UserSkillsEdit
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

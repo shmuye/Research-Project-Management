@@ -1,4 +1,4 @@
-package andorid.example.collabrix.View.StudentUi.Components
+package com.project.collabrix.ui.screens.Student.Components
 
 import andorid.example.collabrix.data.model.StudentProfile
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,17 @@ fun UserProfileEdit(
     var email by remember { mutableStateOf(profile.email) }
     var college by remember { mutableStateOf(profile.college) }
     var year by remember { mutableStateOf(profile.year) }
+
+    // Update parent profile when local state changes
+    LaunchedEffect(email, college, year) {
+        onProfileUpdate(
+            profile.copy(
+                email = email,
+                college = college,
+                year = year
+            )
+        )
+    }
 
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
@@ -96,10 +108,7 @@ fun UserProfileEdit(
                         Text("Email:", fontWeight = FontWeight.Bold)
                         OutlinedTextField(
                             value = email,
-                            onValueChange = { 
-                                email = it
-                                onProfileUpdate(profile.copy(email = it))
-                            },
+                            onValueChange = { email = it },
                             placeholder = { Text(email) },
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                             shape = RoundedCornerShape(8.dp),
@@ -112,10 +121,7 @@ fun UserProfileEdit(
                         Text("University/College:")
                         OutlinedTextField(
                             value = college,
-                            onValueChange = { 
-                                college = it
-                                onProfileUpdate(profile.copy(college = it))
-                            },
+                            onValueChange = { college = it },
                             placeholder = { Text(college) },
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                             shape = RoundedCornerShape(8.dp),
@@ -128,10 +134,7 @@ fun UserProfileEdit(
                         Text("Year:")
                         OutlinedTextField(
                             value = year,
-                            onValueChange = { 
-                                year = it
-                                onProfileUpdate(profile.copy(year = it))
-                            },
+                            onValueChange = { year = it },
                             placeholder = { Text(year) },
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                             shape = RoundedCornerShape(8.dp),
@@ -150,6 +153,15 @@ fun StudentDescriptionEdit(
 ) {
     var description by remember { mutableStateOf(profile.description) }
 
+    // Update parent profile when local state changes
+    LaunchedEffect(description) {
+        onProfileUpdate(
+            profile.copy(
+                description = description
+            )
+        )
+    }
+
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -159,10 +171,7 @@ fun StudentDescriptionEdit(
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = description,
-            onValueChange = { 
-                description = it
-                onProfileUpdate(profile.copy(description = it))
-            },
+            onValueChange = { description = it },
             placeholder = { Text("Write something about your self.....") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,6 +190,15 @@ fun UserSkillsEdit(
 ) {
     var myskill by remember { mutableStateOf("") }
     var skills by remember { mutableStateOf(profile.skill) }
+
+    // Update parent profile when skills change
+    LaunchedEffect(skills) {
+        onProfileUpdate(
+            profile.copy(
+                skill = skills
+            )
+        )
+    }
 
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
@@ -219,7 +237,6 @@ fun UserSkillsEdit(
                     onClick = {
                         if (myskill.isNotBlank()) {
                             skills = skills + myskill
-                            onProfileUpdate(profile.copy(skill = skills))
                             myskill = ""
                         }
                     },
@@ -242,6 +259,17 @@ fun EducationalHistoryEdit(
     var department by remember { mutableStateOf(profile.department) }
     var year by remember { mutableStateOf(profile.year) }
 
+    // Update parent profile when education details change
+    LaunchedEffect(college, department, year) {
+        onProfileUpdate(
+            profile.copy(
+                college = college,
+                department = department,
+                year = year
+            )
+        )
+    }
+
     Card(
         elevation = CardDefaults.cardElevation(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -253,28 +281,19 @@ fun EducationalHistoryEdit(
             Text("Education", fontSize = 30.sp, fontWeight = FontWeight.Bold)
             OutlinedTextField(
                 value = college,
-                onValueChange = { 
-                    college = it
-                    onProfileUpdate(profile.copy(college = it))
-                },
+                onValueChange = { college = it },
                 label = { Text("College/University") },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = department,
-                onValueChange = { 
-                    department = it
-                    onProfileUpdate(profile.copy(department = it))
-                },
+                onValueChange = { department = it },
                 label = { Text("Department") },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = year,
-                onValueChange = { 
-                    year = it
-                    onProfileUpdate(profile.copy(year = it))
-                },
+                onValueChange = { year = it },
                 label = { Text("Year") },
                 modifier = Modifier.fillMaxWidth()
             )

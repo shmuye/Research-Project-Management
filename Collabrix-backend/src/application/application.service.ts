@@ -107,7 +107,29 @@ export class ApplicationService {
         });
     }
 
+    async withdrawApplication(projectId: number, studentId: number) {
+        const application = await this.prisma.application.findFirst({
+            where: {
+                projectId,
+                studentId,
+            },
+        });
 
+        if (!application) {
+            throw new NotFoundException('Application not found');
+        }
 
+        await this.prisma.application.delete({
+            where: {
+                id: application.id,
+            },
+        });
+
+        return { message: 'Application withdrawn successfully' };
+    }
 }
+
+
+
+
 

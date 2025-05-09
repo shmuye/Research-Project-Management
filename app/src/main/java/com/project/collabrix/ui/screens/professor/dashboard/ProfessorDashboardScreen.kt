@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,6 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import com.project.collabrix.data.dto.Project
+import androidx.navigation.NavHostController
+import com.project.collabrix.ui.navigation.AuthScreen
+import com.project.collabrix.presentation.screens.professor.ApplicationsScreen
+import com.project.collabrix.presentation.screens.ProfileScreen
 
 enum class ProfessorPage(val label: String) {
     Dashboard("Dashboard"),
@@ -46,7 +51,8 @@ enum class ProfessorPage(val label: String) {
 @Composable
 fun ProfessorDashboardScreen(
     onLogout: () -> Unit = {},
-    onNewProject: () -> Unit = {}
+    onNewProject: () -> Unit = {},
+    navController: NavHostController
 ) {
     var selectedPage by remember { mutableStateOf(ProfessorPage.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -57,12 +63,19 @@ fun ProfessorDashboardScreen(
     val userName = userFlow.value?.let { it.firstName + if (it.lastName.isNotBlank()) " " + it.lastName else "" } ?: "Professor"
     var showCreateProjectScreen by remember { mutableStateOf(false) }
 
+    var selectedApplicationsProjectId by remember { mutableStateOf<Int?>(null) }
+    val dashboardViewModel: ProfessorDashboardViewModel = hiltViewModel()
+    val projectsUiState by dashboardViewModel.uiState.collectAsState()
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             SidebarContent(
                 selectedPage = selectedPage,
-                onSelectPage = { selectedPage = it },
+                onSelectPage = {
+                    selectedPage = it
+                    if (it == ProfessorPage.Applications) selectedApplicationsProjectId = null
+                },
                 onLogout = { scope.launch { drawerState.close() }; onLogout() },
                 onClose = { scope.launch { drawerState.close() } }
             )
@@ -118,10 +131,18 @@ fun ProfessorDashboardScreen(
                     if (showCreateProjectScreen) {
                         CreateProjectScreen(onBack = { showCreateProjectScreen = false })
                     } else {
-                        DashboardMainContent(
-                            userName = userName,
-                            onNewProject = { showCreateProjectScreen = true }
-                        )
+                        when (selectedPage) {
+                            ProfessorPage.Dashboard -> DashboardMainContent(
+                                userName = userName,
+                                onNewProject = { showCreateProjectScreen = true },
+                                navController = navController
+                            )
+                            ProfessorPage.MyProjects -> MyProjectsScreen(navController = navController)
+                            ProfessorPage.Applications -> ApplicationsScreen(
+                                onBack = {}
+                            )
+                            ProfessorPage.Profile -> ProfileScreen()
+                        }
                     }
                 }
             }
@@ -130,7 +151,7 @@ fun ProfessorDashboardScreen(
 }
 
 @Composable
-private fun DashboardMainContent(userName: String, onNewProject: () -> Unit) {
+private fun DashboardMainContent(userName: String, onNewProject: () -> Unit, navController: NavHostController) {
     val viewModel: ProfessorDashboardViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -197,7 +218,7 @@ private fun DashboardMainContent(userName: String, onNewProject: () -> Unit) {
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         projects.forEach { project ->
-                            ProjectCardFigmaStyle(project = project)
+                            ProjectCardFigmaStyle(project = project, navController = navController)
                         }
                     }
                 }
@@ -237,7 +258,7 @@ private fun getActiveProjectsCount(uiState: ProjectUiState): Int =
     if (uiState is ProjectUiState.Success) uiState.projects.size else 0
 
 @Composable
-private fun ProjectCardFigmaStyle(project: Project) {
+private fun ProjectCardFigmaStyle(project: Project, navController: NavHostController) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = Color.White,
@@ -259,15 +280,15 @@ private fun ProjectCardFigmaStyle(project: Project) {
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { /* TODO: View project details */ },
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
-                border = ButtonDefaults.outlinedButtonBorder,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Text("View Details", color = Color.Black, fontWeight = FontWeight.Bold)
-            }
+//            Button(
+//                onClick = { navController.navigate(AuthScreen.ProjectDetail.createRoute(project.id)) },
+//                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+//                border = ButtonDefaults.outlinedButtonBorder,
+//                modifier = Modifier.fillMaxWidth(),
+//                shape = RoundedCornerShape(6.dp)
+//            ) {
+//                Text("View Details", color = Color.Black, fontWeight = FontWeight.Bold)
+//            }
         }
     }
 }
@@ -350,5 +371,82 @@ private fun SidebarButton(text: String, selected: Boolean, onClick: () -> Unit) 
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun MyProjectsScreen(navController: NavHostController) {
+    val viewModel: ProfessorDashboardViewModel = hiltViewModel()
+    val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
+    var searchQuery by remember { mutableStateOf("") }
+    val primaryBlue = Color(0xFF3B82F6)
+    LaunchedEffect(Unit) { viewModel.fetchProjects() }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = "My Projects",
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            color = primaryBlue
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search projects...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = primaryBlue,
+                unfocusedBorderColor = primaryBlue.copy(alpha = 0.5f),
+                focusedLabelColor = primaryBlue,
+                cursorColor = primaryBlue
+            )
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        when (uiState) {
+            is ProjectUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = primaryBlue)
+                }
+            }
+            is ProjectUiState.Error -> {
+                val message = (uiState as ProjectUiState.Error).message
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("Error: $message", color = Color.Red, fontSize = 16.sp)
+                }
+            }
+            is ProjectUiState.Success -> {
+                val projects = (uiState as ProjectUiState.Success).projects
+                val filteredProjects = projects.filter {
+                    it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.description.contains(searchQuery, ignoreCase = true)
+                }
+                if (filteredProjects.isEmpty()) {
+                    Text("No projects found.", color = Color.Gray, fontSize = 16.sp, modifier = Modifier.padding(top = 32.dp))
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        filteredProjects.forEach { project ->
+                            ProjectCardFigmaStyle(project = project, navController = navController)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ApplicationsScreen(onBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Applications (Placeholder)", fontSize = 20.sp, color = Color.Gray)
     }
 } 

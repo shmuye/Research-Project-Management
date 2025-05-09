@@ -1,21 +1,22 @@
 package com.project.collabrix.di
 
-import andorid.example.collabrix.data.repository.StudentRepository
 import com.project.collabrix.data.api.AuthApiService
 import com.project.collabrix.data.api.ProjectApi
 import com.project.collabrix.data.api.StudentApiService
-import com.project.collabrix.data.local.UserPreferences
+import com.project.collabrix.data.api.UserApi
 import com.project.collabrix.data.repository.ProjectRepository
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import com.project.collabrix.data.repository.UserRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import com.project.collabrix.data.local.UserPreferences
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -66,16 +67,21 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideStudentApiService(retrofit: Retrofit): StudentApiService =
-        retrofit.create(StudentApiService::class.java)
-
-    @Provides
-    @Singleton
     fun provideProjectRepository(api: ProjectApi): ProjectRepository =
         ProjectRepository(api)
 
     @Provides
     @Singleton
-    fun provideStudentRepository(api: StudentApiService): StudentRepository =
-        StudentRepository(api)
+    fun provideStudentApiService(retrofit: Retrofit): StudentApiService =
+        retrofit.create(StudentApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): UserApi =
+        retrofit.create(UserApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(api: UserApi): UserRepository =
+        UserRepository(api)
 } 

@@ -1,14 +1,9 @@
 package com.project.collabrix.ui.navigation
 
-import andorid.example.collabrix.View.StudentUi.Pages.BrowseResearch
-import andorid.example.collabrix.View.StudentUi.Pages.DashboardPage
-import andorid.example.collabrix.View.StudentUi.Pages.MyApplicationPage
-import andorid.example.collabrix.View.StudentUi.Pages.ProfilePage
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-
 import com.project.collabrix.ui.screens.auth.ForgotPasswordScreen
 import com.project.collabrix.ui.screens.auth.LandingScreen
 import com.project.collabrix.ui.screens.auth.LoginScreen
@@ -16,7 +11,7 @@ import com.project.collabrix.ui.screens.auth.SignUpScreen
 import com.project.collabrix.ui.screens.auth.UserRole
 import com.project.collabrix.ui.screens.main.AdminMainScreen
 import com.project.collabrix.ui.screens.main.ProfessorMainScreen
-import com.project.collabrix.ui.screens.main.StudentMainScreen
+import andorid.example.collabrix.View.StudentUi.Pages.DashboardPage
 
 sealed class AuthScreen(val route: String) {
     object Landing : AuthScreen("landing")
@@ -24,10 +19,6 @@ sealed class AuthScreen(val route: String) {
     object SignUp : AuthScreen("signup")
     object ForgotPassword : AuthScreen("forgot_password")
     object StudentMain : AuthScreen("student_main")
-    object StudentDashboard : AuthScreen("student_dashboard")
-    object BrowseResearch : AuthScreen("browse_research")
-    object MyApplications : AuthScreen("my_applications")
-    object Profile : AuthScreen("profile")
     object ProfessorMain : AuthScreen("professor_main")
     object AdminMain : AuthScreen("admin_main")
 }
@@ -50,7 +41,7 @@ fun AuthNavigation(navController: NavHostController) {
             LoginScreen(
                 onLogin = { userRole ->
                     when (userRole) {
-                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentDashboard.route) {
+                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentMain.route) {
                             popUpTo(AuthScreen.Landing.route) { inclusive = true }
                         }
                         UserRole.PROFESSOR -> navController.navigate(AuthScreen.ProfessorMain.route) {
@@ -74,7 +65,7 @@ fun AuthNavigation(navController: NavHostController) {
             SignUpScreen(
                 onSignUp = { userRole ->
                     when (userRole) {
-                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentDashboard.route) {
+                        UserRole.STUDENT -> navController.navigate(AuthScreen.StudentMain.route) {
                             popUpTo(AuthScreen.Landing.route) { inclusive = true }
                         }
                         UserRole.PROFESSOR -> navController.navigate(AuthScreen.ProfessorMain.route) {
@@ -102,37 +93,9 @@ fun AuthNavigation(navController: NavHostController) {
             )
         }
 
-        composable(AuthScreen.StudentDashboard.route) {
+        composable(AuthScreen.StudentMain.route) {
             DashboardPage(
                 navController = navController
-            )
-        }
-
-        composable(AuthScreen.BrowseResearch.route) {
-            BrowseResearch(
-                navController = navController
-            )
-        }
-
-        composable(AuthScreen.MyApplications.route) {
-            MyApplicationPage(
-                navController = navController
-            )
-        }
-
-        composable(AuthScreen.Profile.route) {
-            ProfilePage(
-                navController = navController
-            )
-        }
-
-        composable(AuthScreen.StudentMain.route) {
-            StudentMainScreen(
-                onLogout = {
-                    navController.navigate(AuthScreen.Landing.route) {
-                        popUpTo(AuthScreen.StudentMain.route) { inclusive = true }
-                    }
-                }
             )
         }
 
@@ -142,7 +105,8 @@ fun AuthNavigation(navController: NavHostController) {
                     navController.navigate(AuthScreen.Landing.route) {
                         popUpTo(AuthScreen.ProfessorMain.route) { inclusive = true }
                     }
-                }
+                },
+                navController = navController
             )
         }
 

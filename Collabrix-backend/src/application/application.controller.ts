@@ -56,4 +56,14 @@ export class ApplicationController {
         return this.applicationService.removeParticipant(projectId, studentId);
     }
 
+    @Delete(':projectId/withdraw')
+    @Roles(Role.STUDENT)
+    withdrawApplication(
+        @Param('projectId', ParseIntPipe) projectId: number,
+        @getCurrentUserId() studentId: number
+    ) {
+        return this.applicationService.withdrawApplication(projectId, studentId);
+    }
+
+
 }
