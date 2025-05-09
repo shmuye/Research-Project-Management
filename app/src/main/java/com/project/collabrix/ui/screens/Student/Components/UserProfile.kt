@@ -1,6 +1,6 @@
-package com.project.collabrix.ui.screens.Student.Components
+package andorid.example.collabrix.View.StudentUi.Components
 
-import andorid.example.collabrix.Model.StudentModel.StudentProfile
+import andorid.example.collabrix.data.model.StudentProfile
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,11 +45,11 @@ fun UserProfile(profile: StudentProfile){
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)
-                ){
+            ){
                 Card(
                     shape = CircleShape,
                     modifier = Modifier.size(120.dp)
-                    ) {
+                ) {
                     Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "profile image", modifier = Modifier.fillMaxSize())
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -64,7 +64,7 @@ fun UserProfile(profile: StudentProfile){
                         contentColor = Color.White
                     ),
                     modifier = Modifier.width(70.dp).height(24.dp)
-                    ) {
+                ) {
                     Box(contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxWidth()
                     ){
@@ -75,7 +75,7 @@ fun UserProfile(profile: StudentProfile){
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(horizontalAlignment = Alignment.Start,
                     modifier = Modifier.fillMaxWidth()
-                    ) {
+                ) {
                     Text(profile.email, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier=Modifier.height(8.dp))
                     Text(profile.college, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -99,7 +99,7 @@ fun DeleteAccount(){
         elevation = CardDefaults.cardElevation(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF8B7B7)),
         modifier = Modifier.fillMaxWidth()
-        ) {
+    ) {
         Spacer(modifier = Modifier.height(8.dp))
         Column(modifier = Modifier.padding( 20.dp), ) {
             Text("Danger Zone", fontSize = 30.sp, fontWeight = FontWeight.Bold)

@@ -32,13 +32,11 @@ fun SideBar(
     scope: CoroutineScope,
     drawerState: DrawerState,
     onMenuItemClick: (String) -> Unit,
-
-
-){
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
-        ) {
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -67,16 +65,18 @@ fun SideBar(
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.padding(horizontal = 24.dp).clickable { onMenuItemClick("studentdashboard") }
+            modifier = Modifier.padding(horizontal = 24.dp).clickable { 
+                onMenuItemClick("student_dashboard")
+                scope.launch { drawerState.close() }
+            }
         ) {
             Text(
-                text = ("Dashboard"),
+                text = "Dashboard",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-
             )
         }
 
@@ -85,79 +85,92 @@ fun SideBar(
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.padding(horizontal = 24.dp).clickable { onMenuItemClick("BrowseResearch") }
-
+            modifier = Modifier.padding(horizontal = 24.dp).clickable { 
+                onMenuItemClick("browse_research")
+                scope.launch { drawerState.close() }
+            }
         ) {
             Text(
-                text = ("Browse Research"),
+                text = "Browse Research",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-
             )
         }
 
         Spacer(modifier = Modifier.height(15.dp))
-
-
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .clickable {  onMenuItemClick("MyApplication")}
-        ) {
-            Text(
-                text = ("My Applications"),
-                fontSize = 25.sp,
-                fontWeight = FontWeight.W600,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-
-            )
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-
 
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .clickable { onMenuItemClick("MyProfile") }
+                .clickable { 
+                    onMenuItemClick("my_applications")
+                    scope.launch { drawerState.close() }
+                }
         ) {
             Text(
-                text = ("Profile"),
+                text = "My Applications",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-
             )
         }
 
         Spacer(modifier = Modifier.height(15.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalAlignment = Alignment.CenterVertically
+
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clickable { 
+                    onMenuItemClick("profile")
+                    scope.launch { drawerState.close() }
+                }
         ) {
-            Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Log out")
             Text(
-                text = ("Logout"),
+                text = "Profile",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-
             )
+        }
+
+        Spacer(modifier = Modifier.height(15.dp))
+        
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clickable { 
+                    onMenuItemClick("landing")
+                    scope.launch { drawerState.close() }
+                }
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = "Log out"
+                )
+                Text(
+                    text = "Logout",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.W600
+                )
+            }
         }
     }
-
-
 }
