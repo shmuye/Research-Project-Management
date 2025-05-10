@@ -1,10 +1,13 @@
 package com.project.collabrix.ui.screens.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,109 +30,122 @@ fun ForgotPasswordScreen(
     onBackToLogin: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
-    val backgroundColor = Color(0xFFF5F6FA)
-    val primaryColor = Color(0xFF3B82F6)
-    val textColor = Color(0xFF1F2937)
+    val backgroundColor = Color.White
+    val primaryColor = Color.Black
+    val grayText = Color(0xFF6B7280)
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
+        // Top App Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = onBackToLogin) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+
+
+            Text(
+                text = "Collabrix",
+                fontFamily = FontFamily(Font(R.font.orbitron_bold)),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.app_logo), // Replace with your right-side logo
+                contentDescription = "Logo",
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
+        Divider(color = Color.Black, thickness = 1.dp)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            // Logo
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-                    .size(64.dp)
-                    .padding(top = 16.dp)
-            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Title
             Text(
-                text = "Forgot Password",
-                fontSize = 32.sp,
+                text = "Forgot Password?",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = textColor,
-                fontFamily = FontFamily(Font(R.font.orbitron_bold)),
-                modifier = Modifier.padding(vertical = 24.dp)
+                color = Color.Black
             )
 
-            // Description
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
-                text = "Enter your email address and we'll send you instructions to reset your password.",
+                text = "Don't worry, it happens. Enter your email to reset your password.",
                 fontSize = 16.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 32.dp)
+                color = grayText
             )
 
-            // Email field
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Email",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = primaryColor,
-                    unfocusedBorderColor = Color.Gray
-                ),
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Enter your email") },
+                shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
-                )
+                ),
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Reset Password button
             Button(
                 onClick = onResetPassword,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
                 Text(
-                    text = "Reset Password",
+                    text = "Send Reset Link",
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Back to Login option
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Remember your password? ",
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-                TextButton(onClick = onBackToLogin) {
-                    Text(
-                        text = "Login",
-                        color = primaryColor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            Text(
+                text = "If an account is associated with the email you entered, we'll send a password reset link to help you regain access.\n\n" +
+                        "For your security, never share your password with anyone. Make sure to check your spam or junk folder if you don’t see the email within a few minutes.",
+                color = Color.Black,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
-} 
+}
