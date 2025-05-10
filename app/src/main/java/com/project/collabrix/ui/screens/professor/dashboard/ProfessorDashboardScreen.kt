@@ -89,6 +89,71 @@ fun ProfessorDashboardScreen(
             )
         }
     ) {
+        Scaffold(
+            topBar = {
+                if (!showCreateProjectScreen) {
+                    TopAppBar(
+                        title = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(0.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Collabrix",
+                                    fontFamily = FontFamily(Font(R.font.orbitron_bold)),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp,
+                                    color = Color.Black
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Open navigation drawer")
+                            }
+                        },
+                        actions = {
+                            Image(
+                                painter = painterResource(id = R.drawable.app_logo),
+                                contentDescription = "App Logo",
+                                modifier = Modifier.size(36.dp)
+                            )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                    )
+                }
+            },
+            containerColor = Color(0xFFF5F6FA),
+            content = { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF5F6FA))
+                        .padding(padding),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    if (showCreateProjectScreen) {
+                        CreateProjectScreen(onBack = { showCreateProjectScreen = false })
+                    } else {
+                        when (selectedPage) {
+                            ProfessorPage.Dashboard -> DashboardMainContent(
+                                userName = userName,
+                                onNewProject = { showCreateProjectScreen = true },
+                                navController = navController,
+                                pendingApplicationsCount = pendingApplicationsCount,
+                                totalApprovedStudentsCount = totalApprovedStudentsCount
+                            )
+                            ProfessorPage.MyProjects -> MyProjectsScreen(navController = navController)
+                            ProfessorPage.Applications -> ApplicationsScreen(
+                                onBack = {}
+                            )
+                            ProfessorPage.Profile -> ProfileScreen()
+                        }
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -376,7 +441,7 @@ private fun MyProjectsScreen(navController: NavHostController) {
                 val projects = (uiState as ProjectUiState.Success).projects
                 val filteredProjects = projects.filter {
                     (it.title ?: "").contains(searchQuery, ignoreCase = true) ||
-                    (it.description ?: "").contains(searchQuery, ignoreCase = true)
+                            (it.description ?: "").contains(searchQuery, ignoreCase = true)
                 }
                 if (filteredProjects.isEmpty()) {
                     Text("No projects found.", color = Color.Gray, fontSize = 16.sp, modifier = Modifier.padding(top = 32.dp))
@@ -397,4 +462,5 @@ private fun ApplicationsScreen(onBack: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Applications (Placeholder)", fontSize = 20.sp, color = Color.Gray)
     }
-} 
+}
+
