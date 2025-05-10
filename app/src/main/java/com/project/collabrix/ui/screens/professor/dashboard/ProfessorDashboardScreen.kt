@@ -133,7 +133,7 @@ fun ProfessorDashboardScreen(
                     } else {
                         when (selectedPage) {
                             ProfessorPage.Dashboard -> DashboardMainContent(
-                                userName = userName,
+                            userName = userName,
                                 onNewProject = { showCreateProjectScreen = true },
                                 navController = navController
                             )
