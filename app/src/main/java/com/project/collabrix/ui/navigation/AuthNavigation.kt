@@ -11,7 +11,7 @@ import com.project.collabrix.ui.screens.auth.SignUpScreen
 import com.project.collabrix.ui.screens.auth.UserRole
 import com.project.collabrix.ui.screens.main.AdminMainScreen
 import com.project.collabrix.ui.screens.main.ProfessorMainScreen
-import andorid.example.collabrix.View.StudentUi.Pages.DashboardPage
+import com.project.collabrix.ui.screens.Student.Pages.StudentDashboardScreen
 
 sealed class AuthScreen(val route: String) {
     object Landing : AuthScreen("landing")
@@ -94,7 +94,7 @@ fun AuthNavigation(navController: NavHostController) {
         }
 
         composable(AuthScreen.StudentMain.route) {
-            DashboardPage(
+            StudentDashboardScreen(
                 navController = navController
             )
         }
@@ -118,6 +118,26 @@ fun AuthNavigation(navController: NavHostController) {
                     }
                 }
             )
+        }
+
+        composable("projectDetail/{projectId}") { backStackEntry ->
+            val projectId = backStackEntry.arguments?.getString("projectId")?.toIntOrNull()
+            if (projectId != null) {
+                com.project.collabrix.ui.screens.professor.dashboard.ProjectDetailScreen(
+                    projectId = projectId,
+                    navController = navController
+                )
+            }
+        }
+
+        composable("studentProjectDetail/{projectId}") { backStackEntry ->
+            val projectId = backStackEntry.arguments?.getString("projectId")?.toIntOrNull()
+            if (projectId != null) {
+                com.project.collabrix.ui.screens.Student.Pages.StudentProjectDetailScreen(
+                    projectId = projectId,
+                    navController = navController
+                )
+            }
         }
     }
 } 

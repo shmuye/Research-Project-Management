@@ -2,7 +2,6 @@ package com.project.collabrix.di
 
 import com.project.collabrix.data.api.AuthApiService
 import com.project.collabrix.data.api.ProjectApi
-import com.project.collabrix.data.api.StudentApiService
 import com.project.collabrix.data.api.UserApi
 import com.project.collabrix.data.repository.ProjectRepository
 import com.project.collabrix.data.repository.UserRepository
@@ -69,11 +68,6 @@ object NetworkModule {
     @Singleton
     fun provideProjectRepository(api: ProjectApi): ProjectRepository =
         ProjectRepository(api)
-
-    @Provides
-    @Singleton
-    fun provideStudentApiService(retrofit: Retrofit): StudentApiService =
-        retrofit.create(StudentApiService::class.java)
 
     @Provides
     @Singleton

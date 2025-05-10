@@ -36,12 +36,12 @@ fun ApplicationsScreen(
                 title = { Text("All Project Applications") }
             )
         },
-        containerColor = Color.White
+        containerColor = Color(0xFFF5F6FA)
     ) { padding ->
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(Color.White)
+            .background(Color(0xFFF5F6FA))
         ) {
             when (uiState) {
                 is ApplicationsUiState.Loading -> {

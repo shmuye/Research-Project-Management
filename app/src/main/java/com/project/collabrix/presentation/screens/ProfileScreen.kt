@@ -25,16 +25,26 @@ import com.project.collabrix.R
 import com.project.collabrix.presentation.ProfileUiState
 import com.project.collabrix.presentation.ProfileViewModel
 import com.project.collabrix.data.dto.UserProfileUpdate
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
-    onAccountDeleted: () -> Unit = {}
+    onAccountDeleted: () -> Unit = {},
+    navController: NavController? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var editMode by remember { mutableStateOf(false) }
+
+    // Declare state variables at the top, using null-safe access
+    val profile = (uiState as? ProfileUiState.Success)?.profile
+    var name by remember { mutableStateOf(profile?.name ?: "") }
+    var department by remember { mutableStateOf(profile?.department ?: "") }
+    var bio by remember { mutableStateOf(profile?.bio ?: "") }
+    var researchInterests by remember { mutableStateOf(profile?.getResearchInterestsList() ?: emptyList()) }
+    var researchInterestsText by remember { mutableStateOf(researchInterests.joinToString(", ")) }
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
@@ -42,26 +52,66 @@ fun ProfileScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = Color(0xFFF5F6FA)
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(Color(0xFFF5F6FA)),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(bottom = 32.dp)
         ) {
             // Top Bar (only one hamburger menu)
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("manage your personal information and account", fontSize = 14.sp, color = Color.Black, modifier = Modifier.padding(bottom = 4.dp))
-                Button(
-                    onClick = { editMode = !editMode },
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                    modifier = Modifier.height(32.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(if (editMode) "Cancel" else "Edit Profile", color = Color.White, fontSize = 14.sp)
+                    Text(
+                        "manage your personal information and account",
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = { editMode = !editMode },
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text(if (editMode) "Cancel" else "Edit Profile", color = Color.White, fontSize = 14.sp)
+                    }
+                    if (editMode) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                viewModel.saveProfile(
+                                    UserProfileUpdate(
+                                        name = name,
+                                        department = department,
+                                        bio = bio,
+                                        researchInterests = researchInterests.joinToString(", ")
+                                    )
+                                )
+                                editMode = false
+                            },
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("Save", color = Color.White, fontSize = 14.sp)
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -82,17 +132,19 @@ fun ProfileScreen(
                         }
                     }
                     is ProfileUiState.Deleted -> {
+                        if (navController != null) {
+                            LaunchedEffect(Unit) {
+                                navController.navigate("landing") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        } else {
                         onAccountDeleted()
+                        }
                     }
                     is ProfileUiState.Success -> {
-                        val profile = (uiState as ProfileUiState.Success).profile
-                        var name by remember { mutableStateOf(profile.name ?: "") }
-                        var department by remember { mutableStateOf(profile.department ?: "") }
-                        var bio by remember { mutableStateOf(profile.bio ?: "") }
-                        val email = profile.email
-                        val role = profile.role
-                        var researchInterests by remember { mutableStateOf(profile.getResearchInterestsList()) }
-                        var researchInterestsText by remember { mutableStateOf(researchInterests.joinToString(", ")) }
+                        val email = profile?.email
+                        val role = profile?.role
                         // Profile Card
                         Column(
                             modifier = Modifier
@@ -124,18 +176,16 @@ fun ProfileScreen(
                             } else {
                                 Text(name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
-                            Text("Professor of Computer Science", fontSize = 15.sp, color = Color.Black)
                             Spacer(modifier = Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
                                     .background(Color.Black, RoundedCornerShape(8.dp))
                                     .padding(horizontal = 12.dp, vertical = 4.dp)
                             ) {
-                                Text(role, color = Color.White, fontSize = 13.sp)
+                                Text(role ?: "", color = Color.White, fontSize = 13.sp)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(email, fontSize = 14.sp, color = Color.Black)
-                            Text("University of Technology", fontSize = 14.sp, color = Color.Black)
+                            Text(email ?: "", fontSize = 14.sp, color = Color.Black)
                             if (editMode) {
                                 OutlinedTextField(
                                     value = department,
@@ -145,8 +195,8 @@ fun ProfileScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                            } else {
-                                Text("Department of  $department", fontSize = 14.sp, color = Color.Black)
+                            } else if (department.isNotBlank()) {
+                                Text("Department of $department", fontSize = 14.sp, color = Color.Black)
                             }
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -156,9 +206,16 @@ fun ProfileScreen(
                                 .fillMaxWidth()
                                 .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
                                 .background(Color.White)
-                                .padding(16.dp)
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("About Me", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                            Text(
+                                "About Me",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color.Black,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
                             if (editMode) {
                                 OutlinedTextField(
                                     value = bio,
@@ -170,7 +227,12 @@ fun ProfileScreen(
                                     maxLines = 5
                                 )
                             } else {
-                                Text(bio, fontSize = 14.sp, color = Color.Black)
+                                Text(
+                                    bio,
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -180,9 +242,16 @@ fun ProfileScreen(
                                 .fillMaxWidth()
                                 .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
                                 .background(Color.White)
-                                .padding(16.dp)
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("Research Interests", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                            Text(
+                                "Research Interests",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color.Black,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             if (editMode) {
                                 OutlinedTextField(
@@ -198,39 +267,19 @@ fun ProfileScreen(
                             } else {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     researchInterests.forEach { interest ->
                                         Box(
                                             modifier = Modifier
                                                 .background(Color(0xFFF3F4F6), RoundedCornerShape(20.dp))
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
+                                                .align(Alignment.CenterVertically)
                                         ) {
                                             Text(interest, color = Color.Black, fontSize = 14.sp)
                                         }
                                     }
                                 }
-                            }
-                        }
-                        if (editMode) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(
-                                onClick = {
-                                    viewModel.saveProfile(
-                                        UserProfileUpdate(
-                                            name = name,
-                                            department = department,
-                                            bio = bio,
-                                            researchInterests = researchInterests.joinToString(", ")
-                                        )
-                                    )
-                                    editMode = false
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
-                            ) {
-                                Text("Save Changes", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             }
                         }
                     }

@@ -12,13 +12,16 @@ import retrofit2.http.Path
 import com.project.collabrix.data.dto.Application
 import retrofit2.http.PATCH
 import retrofit2.http.Query
+import com.project.collabrix.data.dto.ProfileDto
+import com.project.collabrix.data.dto.ApplyToProjectRequest
+import com.project.collabrix.data.dto.ProjectSummary
 
 interface ProjectApi {
     @GET("projects/me")
-    suspend fun getMyProjects(): List<Project>
+    suspend fun getMyProjects(): List<ProjectSummary>
 
     @POST("projects")
-    suspend fun createProject(@Body request: CreateProjectRequest): Project
+    suspend fun createProject(@Body request: CreateProjectRequest): ProjectSummary
 
     @GET("projects/{id}")
     suspend fun getProjectDetail(@Path("id") projectId: Int): ProjectDetail
@@ -40,6 +43,18 @@ interface ProjectApi {
         @Path("applicationId") applicationId: Int,
         @Body statusUpdate: ApplicationStatusUpdate
     ): Application
+
+    @GET("applications")
+    suspend fun getStudentApplications(): List<Application>
+
+    @GET("profile")
+    suspend fun getProfile(): ProfileDto
+
+    @GET("projects")
+    suspend fun getAllProjects(): List<ProjectSummary>
+
+    @POST("applications")
+    suspend fun applyToProject(@Body request: ApplyToProjectRequest): Application
 }
 
 data class ApplicationStatusUpdate(val status: String) 

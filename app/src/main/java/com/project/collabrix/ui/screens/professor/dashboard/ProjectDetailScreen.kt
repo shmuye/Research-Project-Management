@@ -26,6 +26,7 @@ import com.project.collabrix.presentation.main.ProjectDetailState
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,11 +36,17 @@ fun ProjectDetailScreen(
     viewModel: ProjectDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val approvedStudents by viewModel.approvedStudents.collectAsState()
+    val applicationsLoaded by viewModel.applicationsLoaded.collectAsState()
     val scope = rememberCoroutineScope()
     val orbitron = FontFamily(Font(R.font.orbitron_bold))
+    val context = LocalContext.current
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(projectId) {
         viewModel.loadProjectDetail(projectId)
+        viewModel.loadApprovedStudents(projectId)
     }
 
     Scaffold(
@@ -159,23 +166,18 @@ fun ProjectDetailScreen(
                             Text(formatDate(project.deadline), fontSize = 15.sp, modifier = Modifier.padding(bottom = 12.dp))
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
                             Text("Students", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.Black)
-                            if (project.students.orEmpty().isEmpty()) {
+                            if (!applicationsLoaded) {
+                                CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(20.dp))
+                            } else if (approvedStudents.isEmpty()) {
                                 Text("No students have joined this project yet.", color = Color.Gray, fontSize = 15.sp, modifier = Modifier.padding(vertical = 8.dp))
                             } else {
                                 Column {
-                                    project.students.orEmpty().forEach { student ->
+                                    approvedStudents.forEach { student ->
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                                         ) {
-                                            Text(student.name, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                                            IconButton(onClick = {
-                                                scope.launch {
-                                                    viewModel.removeStudent(projectId, student.id)
-                                                }
-                                            }) {
-                                                Icon(Icons.Default.Delete, contentDescription = "Remove Student", tint = Color.Red)
-                                            }
+                                            Text(student.name ?: "", fontSize = 15.sp, modifier = Modifier.weight(1f))
                                         }
                                     }
                                 }
@@ -183,7 +185,7 @@ fun ProjectDetailScreen(
                             Spacer(modifier = Modifier.height(24.dp))
                             Button(
                                 onClick = {
-                                    scope.launch { viewModel.deleteProject(projectId) }
+                                    showDeleteDialog = true
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                                 modifier = Modifier.fillMaxWidth(),
@@ -192,6 +194,26 @@ fun ProjectDetailScreen(
                                 Icon(Icons.Default.Delete, contentDescription = "Delete Project", tint = Color.White)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("Delete Project", color = Color.White, fontWeight = FontWeight.Bold)
+                            }
+                            if (showDeleteDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDeleteDialog = false },
+                                    title = { Text("Confirm Deletion") },
+                                    text = { Text("Are you sure you want to delete this project? This action cannot be undone.") },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            showDeleteDialog = false
+                                            scope.launch { viewModel.deleteProject(projectId) }
+                                        }) {
+                                            Text("Delete", color = Color.Red)
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showDeleteDialog = false }) {
+                                            Text("Cancel")
+                                        }
+                                    }
+                                )
                             }
                         }
                     }

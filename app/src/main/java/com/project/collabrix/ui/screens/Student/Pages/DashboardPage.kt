@@ -1,235 +1,332 @@
-package andorid.example.collabrix.View.StudentUi.Pages
+package com.project.collabrix.ui.screens.Student.Pages
 
-
-import andorid.example.collabrix.View.StudentUi.Components.MyProjects
-import andorid.example.collabrix.ViewModel.DashboardState
-import andorid.example.collabrix.ViewModel.DashboardViewModel
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import com.project.collabrix.R
-import com.project.collabrix.ui.screens.Student.Components.SideBar
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.Image
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.project.collabrix.presentation.StudentDashboardViewModel
+import com.project.collabrix.presentation.StudentDashboardUiState
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+// Enum for navigation
+enum class StudentPage(val label: String) {
+    Dashboard("Dashboard"),
+    BrowseResearch("Browse Research"),
+    MyApplications("My Applications"),
+    Profile("Profile")
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardPage(
-    navController: NavHostController,
-    viewModel: DashboardViewModel = hiltViewModel()
+fun StudentDashboardScreen(
+    onLogout: () -> Unit = {},
+    navController: NavHostController
 ) {
-    // for the Side bar navigation
+    var selectedPage by remember { mutableStateOf(StudentPage.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Collect state from ViewModel
-    val state by viewModel.state.collectAsState()
+    val dashboardViewModel: StudentDashboardViewModel = hiltViewModel()
+    val uiState by dashboardViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.fetchDashboardData()
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                SideBar(
-                    scope = scope,
-                    drawerState = drawerState,
-                    onMenuItemClick = { route ->
-                        navController.navigate(route)
+            StudentSidebarContent(
+                selectedPage = selectedPage,
+                onSelectPage = { selectedPage = it },
+                onLogout = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("landing") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
-                )
-            }
+                },
+                onClose = { scope.launch { drawerState.close() } }
+            )
         }
     ) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
+                TopAppBar(
                     title = {
-                        Text(
-                            text = "Collabrix",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(0.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Collabrix",
+                                fontFamily = FontFamily(Font(R.font.orbitron_bold)),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp,
+                                color = Color.Black
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Open navigation drawer")
+                        }
                     },
                     actions = {
                         Image(
                             painter = painterResource(id = R.drawable.app_logo),
-                            contentDescription = "logo",
-                            modifier = Modifier.size(50.dp)
+                            contentDescription = "App Logo",
+                            modifier = Modifier.size(36.dp)
                         )
                     },
-                    navigationIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu Icon",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clickable {
-                                    scope.launch {
-                                        drawerState.open()
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                )
+            },
+            containerColor = Color(0xFFF5F6FA),
+            content = { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF5F6FA))
+                        .padding(padding),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    when (selectedPage) {
+                        StudentPage.Dashboard -> {
+                            when (uiState) {
+                                is StudentDashboardUiState.Loading -> {
+                                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                                }
+                                is StudentDashboardUiState.Error -> {
+                                    Text(
+                                        text = (uiState as StudentDashboardUiState.Error).message,
+                                        color = Color.Red,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+                                is StudentDashboardUiState.Success -> {
+                                    val data = uiState as StudentDashboardUiState.Success
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
+                                        Text(
+                                            text = "Student Dashboard",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 20.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "Welcome back, ${data.name}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        StatCard(title = "Applied Projects", value = data.appliedCount)
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        StatCard(title = "Active Projects", value = data.activeCount)
+                                        Spacer(modifier = Modifier.height(24.dp))
+                                        Text(
+                                            text = "Your Active Projects",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 18.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        if (data.activeProjects.isEmpty()) {
+                                            Text("No active projects found.", color = Color.Gray, fontSize = 16.sp)
+                                        } else {
+                                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                                data.activeProjects.forEach { project ->
+                                                    ProjectCardFigmaStyle(project = project, navController = navController)
+                                                }
+                                            }
+                                        }
                                     }
                                 }
-                        )
-                    },
-                    modifier = Modifier.shadow(
-                        elevation = 8.dp,
-                        ambientColor = Color.Black,
-                        spotColor = Color.Black
-                    )
-                )
-            }
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(horizontal = 30.dp)
-                    .fillMaxSize()
-            ) {
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.padding(vertical = 10.dp)
-                    ) {
-                        Text(
-                            text = "Student Dashboard",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    // Applied projects box
-                    Card(
-                        modifier = Modifier
-                            .height(120.dp)
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.SpaceAround,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 10.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                text = "Applied Projects",
-                                fontSize = 26.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = when (state) {
-                                    is DashboardState.Success -> "${(state as DashboardState.Success).totalAppliedProjects.size}"
-                                    else -> "0"
-                                },
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(15.dp))
-
-                    // Active Projects indicator Box
-                    Card(
-                        modifier = Modifier
-                            .height(120.dp)
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        shape = RoundedCornerShape(22.dp)
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.SpaceAround,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 10.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                text = "Active Projects",
-                                fontSize = 26.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = when (state) {
-                                    is DashboardState.Success -> "${(state as DashboardState.Success).activeProjects.size}"
-                                    else -> "0"
-                                },
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(28.dp))
-
-                    Text(
-                        text = "Your Active Projects",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    // List of Active projects
-                    when (state) {
-                        is DashboardState.Loading -> {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
                             }
                         }
-                        is DashboardState.Error -> Text(
-                            text = (state as DashboardState.Error).message,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        is DashboardState.Success -> MyProjects(
-                            projects = (state as DashboardState.Success).activeProjects,
-                            isLoading = false,
-                            error = null,
-                            onProjectClick = { projectId ->
-                                // Handle project click
-                            }
-                        )
-                        else -> Text("No projects available")
+                        StudentPage.BrowseResearch -> {
+                            BrowseResearchScreen()
+                        }
+                        // Add other pages as needed
+                        else -> {}
                     }
                 }
             }
+        )
+    }
+}
+
+@Composable
+private fun StudentSidebarContent(
+    selectedPage: StudentPage,
+    onSelectPage: (StudentPage) -> Unit,
+    onLogout: () -> Unit,
+    onClose: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .width(240.dp)
+            .fillMaxHeight()
+            .background(Color(0xFFF7F7F7)),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp, 32.dp, 24.dp, 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Collabrix",
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        StudentSidebarButton("Dashboard", selectedPage == StudentPage.Dashboard) { onSelectPage(StudentPage.Dashboard); onClose() }
+        StudentSidebarButton("Browse Research", selectedPage == StudentPage.BrowseResearch) { onSelectPage(StudentPage.BrowseResearch); onClose() }
+        StudentSidebarButton("My Applications", selectedPage == StudentPage.MyApplications) { onSelectPage(StudentPage.MyApplications); onClose() }
+        StudentSidebarButton("Profile", selectedPage == StudentPage.Profile) { onSelectPage(StudentPage.Profile); onClose() }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 16.dp)
+                .clickable { onLogout() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Logout", fontSize = 16.sp)
         }
     }
 }
+
+@Composable
+private fun StudentSidebarButton(text: String, selected: Boolean, onClick: () -> Unit) {
+    val background = if (selected) Color(0xFFE0E0E0) else Color.Transparent
+    val fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .height(40.dp)
+            .clickable { onClick() },
+        color = background,
+        shadowElevation = if (selected) 4.dp else 0.dp,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = text,
+                fontWeight = fontWeight,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatCard(title: String, value: Any) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White,
+        shadowElevation = 2.dp,
+        border = ButtonDefaults.outlinedButtonBorder,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(title, color = Color.Black, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = value.toString(),
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProjectCardFigmaStyle(project: com.project.collabrix.data.dto.ProjectSummary, navController: NavHostController) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White,
+        shadowElevation = 2.dp,
+        border = ButtonDefaults.outlinedButtonBorder,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                project.title ?: "Untitled Project",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                project.professorName?.let { "Led By $it" } ?: "",
+                color = Color(0xFF22C55E),
+                fontSize = 14.sp
+            )
+            Text(
+                "Active",
+                color = Color(0xFF22C55E),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                project.description ?: "",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { navController.navigate("studentProjectDetail/${project.id}") },
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                border = ButtonDefaults.outlinedButtonBorder,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text("View Details", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+} 

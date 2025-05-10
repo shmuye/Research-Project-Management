@@ -28,6 +28,7 @@ export class UserService {
         const updateData: any = {
             name: dto.name,
             bio: dto.bio,
+            department: dto.department,
         };
 
         if (user.role === 'STUDENT') {

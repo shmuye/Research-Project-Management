@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import com.project.collabrix.ui.navigation.AuthScreen
 import com.project.collabrix.presentation.screens.professor.ApplicationsScreen
 import com.project.collabrix.presentation.screens.ProfileScreen
+import com.project.collabrix.data.dto.ProjectSummary
 
 enum class ProfessorPage(val label: String) {
     Dashboard("Dashboard"),
@@ -66,6 +67,13 @@ fun ProfessorDashboardScreen(
     var selectedApplicationsProjectId by remember { mutableStateOf<Int?>(null) }
     val dashboardViewModel: ProfessorDashboardViewModel = hiltViewModel()
     val projectsUiState by dashboardViewModel.uiState.collectAsState()
+    val pendingApplicationsCount by dashboardViewModel.pendingApplicationsCount.collectAsState()
+    val totalApprovedStudentsCount by dashboardViewModel.totalApprovedStudentsCount.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.fetchProjects()
+        dashboardViewModel.fetchAllApplicationsForProfessor()
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -86,7 +94,6 @@ fun ProfessorDashboardScreen(
                 if (!showCreateProjectScreen) {
                     TopAppBar(
                         title = {
-                            Column(modifier = Modifier.fillMaxWidth().padding(0.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(0.dp),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -99,9 +106,6 @@ fun ProfessorDashboardScreen(
                                         fontSize = 22.sp,
                                         color = Color.Black
                                     )
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Divider(color = Color.Black, thickness = 1.dp, modifier = Modifier.fillMaxWidth().padding(0.dp))
                             }
                         },
                         navigationIcon = {
@@ -120,11 +124,12 @@ fun ProfessorDashboardScreen(
                     )
                 }
             },
+            containerColor = Color(0xFFF5F6FA),
             content = { padding ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White)
+                        .background(Color(0xFFF5F6FA))
                         .padding(padding),
                     contentAlignment = Alignment.TopCenter
                 ) {
@@ -135,7 +140,9 @@ fun ProfessorDashboardScreen(
                             ProfessorPage.Dashboard -> DashboardMainContent(
                             userName = userName,
                                 onNewProject = { showCreateProjectScreen = true },
-                                navController = navController
+                                navController = navController,
+                                pendingApplicationsCount = pendingApplicationsCount,
+                                totalApprovedStudentsCount = totalApprovedStudentsCount
                             )
                             ProfessorPage.MyProjects -> MyProjectsScreen(navController = navController)
                             ProfessorPage.Applications -> ApplicationsScreen(
@@ -151,7 +158,13 @@ fun ProfessorDashboardScreen(
 }
 
 @Composable
-private fun DashboardMainContent(userName: String, onNewProject: () -> Unit, navController: NavHostController) {
+private fun DashboardMainContent(
+    userName: String,
+    onNewProject: () -> Unit,
+    navController: NavHostController,
+    pendingApplicationsCount: Int,
+    totalApprovedStudentsCount: Int
+) {
     val viewModel: ProfessorDashboardViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -188,9 +201,9 @@ private fun DashboardMainContent(userName: String, onNewProject: () -> Unit, nav
         // Stats Section
         StatCard(title = "Active Projects", value = getActiveProjectsCount(uiState))
         Spacer(modifier = Modifier.height(12.dp))
-        StatCard(title = "Student Applications", value = "-", placeholder = true) // TODO: Connect to backend
+        StatCard(title = "Student Applications", value = pendingApplicationsCount.toString())
         Spacer(modifier = Modifier.height(12.dp))
-        StatCard(title = "Total Students", value = "-", placeholder = true) // TODO: Connect to backend
+        StatCard(title = "Total Students", value = totalApprovedStudentsCount.toString())
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Your Research Projects",
@@ -258,7 +271,7 @@ private fun getActiveProjectsCount(uiState: ProjectUiState): Int =
     if (uiState is ProjectUiState.Success) uiState.projects.size else 0
 
 @Composable
-private fun ProjectCardFigmaStyle(project: Project, navController: NavHostController) {
+private fun ProjectCardFigmaStyle(project: ProjectSummary, navController: NavHostController) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = Color.White,
@@ -268,27 +281,27 @@ private fun ProjectCardFigmaStyle(project: Project, navController: NavHostContro
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                project.title,
+                project.title ?: "Untitled Project",
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                project.description,
+                project.description ?: "",
                 color = Color.Gray,
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
-//            Button(
-//                onClick = { navController.navigate(AuthScreen.ProjectDetail.createRoute(project.id)) },
-//                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
-//                border = ButtonDefaults.outlinedButtonBorder,
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(6.dp)
-//            ) {
-//                Text("View Details", color = Color.Black, fontWeight = FontWeight.Bold)
-//            }
+            Button(
+                onClick = { navController.navigate("projectDetail/${project.id}") },
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                border = ButtonDefaults.outlinedButtonBorder,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text("View Details", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -427,8 +440,8 @@ private fun MyProjectsScreen(navController: NavHostController) {
             is ProjectUiState.Success -> {
                 val projects = (uiState as ProjectUiState.Success).projects
                 val filteredProjects = projects.filter {
-                    it.title.contains(searchQuery, ignoreCase = true) ||
-                    it.description.contains(searchQuery, ignoreCase = true)
+                    (it.title ?: "").contains(searchQuery, ignoreCase = true) ||
+                    (it.description ?: "").contains(searchQuery, ignoreCase = true)
                 }
                 if (filteredProjects.isEmpty()) {
                     Text("No projects found.", color = Color.Gray, fontSize = 16.sp, modifier = Modifier.padding(top = 32.dp))
