@@ -139,5 +139,9 @@ fun AuthNavigation(navController: NavHostController) {
                 )
             }
         }
+
+        composable("studentProfile") {
+            com.project.collabrix.ui.screens.Student.Pages.StudentProfileScreen(navController = navController)
+        }
     }
 } 

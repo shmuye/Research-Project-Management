@@ -31,7 +31,8 @@ data class ProjectUiModel(
     val professorName: String?,
     val deadline: String?,
     val status: ProjectStatus,
-    val isApplied: Boolean
+    val isApplied: Boolean,
+    val applicationStatus: String? // "APPROVED", "REJECTED", "PENDING", or null
 )
 
 enum class ProjectStatus { OPEN, CLOSED }
@@ -44,7 +45,7 @@ class BrowseResearchViewModel @Inject constructor(
     val uiState: StateFlow<BrowseResearchUiState> = _uiState.asStateFlow()
 
     private var allProjects: List<ProjectSummary> = emptyList()
-    private var appliedProjectIds: MutableSet<Int> = mutableSetOf()
+    private var applications: List<com.project.collabrix.data.dto.Application> = emptyList()
     private var searchQuery: String = ""
 
     init {
@@ -56,8 +57,7 @@ class BrowseResearchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 allProjects = repository.getAllProjects()
-                // Optionally, fetch applications to know which projects are already applied
-                // For now, assume none applied
+                applications = repository.getStudentApplications()
                 updateUi()
             } catch (e: Exception) {
                 _uiState.value = BrowseResearchUiState.Error(e.message ?: "Failed to load projects")
@@ -74,7 +74,7 @@ class BrowseResearchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.applyToProject(projectId)
-                appliedProjectIds.add(projectId)
+                applications = repository.getStudentApplications()
                 updateUi()
             } catch (e: Exception) {
                 // Optionally, show error
@@ -83,10 +83,12 @@ class BrowseResearchViewModel @Inject constructor(
     }
 
     private fun updateUi() {
+        val appMap = applications.associateBy { it.projectId }
         val filtered = allProjects.filter {
             (it.title ?: "").contains(searchQuery, ignoreCase = true) ||
             (it.description ?: "").contains(searchQuery, ignoreCase = true)
         }.map { project ->
+            val app = appMap[project.id]
             ProjectUiModel(
                 id = project.id,
                 title = project.title,
@@ -94,13 +96,14 @@ class BrowseResearchViewModel @Inject constructor(
                 professorName = project.professorName,
                 deadline = project.deadline,
                 status = ProjectStatus.OPEN,
-                isApplied = appliedProjectIds.contains(project.id)
+                isApplied = app != null,
+                applicationStatus = app?.status
             )
         }
         _uiState.value = BrowseResearchUiState.Success(
             projects = filtered,
             searchQuery = searchQuery,
-            appliedProjectIds = appliedProjectIds.toSet()
+            appliedProjectIds = applications.map { it.projectId }.toSet()
         )
     }
 } 

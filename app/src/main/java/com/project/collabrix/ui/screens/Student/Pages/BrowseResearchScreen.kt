@@ -17,6 +17,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.presentation.BrowseResearchViewModel
 import com.project.collabrix.presentation.BrowseResearchUiState
 import com.project.collabrix.presentation.ProjectStatus
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 @Composable
 fun BrowseResearchScreen() {
@@ -38,28 +44,24 @@ fun BrowseResearchScreen() {
         )
         Spacer(modifier = Modifier.height(8.dp))
         var search by remember { mutableStateOf("") }
-        BasicTextField(
+        val primaryBlue = Color(0xFF3B82F6)
+        OutlinedTextField(
             value = search,
             onValueChange = {
                 search = it
                 viewModel.onSearchQueryChange(it)
             },
+            label = { Text("Search projects...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
-            decorationBox = { innerTextField ->
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    if (search.isEmpty()) {
-                        Text("Search projects...", color = Color.Gray, fontSize = 16.sp)
-                    }
-                    innerTextField()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = primaryBlue,
+                unfocusedBorderColor = primaryBlue.copy(alpha = 0.5f),
+                focusedLabelColor = primaryBlue,
+                cursorColor = primaryBlue
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
         when (uiState) {
@@ -80,8 +82,11 @@ fun BrowseResearchScreen() {
                         Text("No projects found.", color = Color.Gray)
                     }
                 } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        data.projects.forEach { project ->
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(data.projects) { project ->
                             ProjectCardBrowse(
                                 project = project,
                                 onApply = { viewModel.applyToProject(project.id) }
@@ -138,20 +143,28 @@ private fun ProjectCardBrowse(
                 StatusBadge(project.status)
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = onApply,
-                enabled = project.status == ProjectStatus.OPEN && !project.isApplied,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (project.status == ProjectStatus.OPEN && !project.isApplied) Color(0xFF3B82F6) else Color.LightGray
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    if (project.isApplied) "Applied" else "Apply",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
+            if (project.status == ProjectStatus.OPEN) {
+                Button(
+                    onClick = onApply,
+                    enabled = !project.isApplied,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (!project.isApplied) Color(0xFF3B82F6) else Color.LightGray
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    if (project.isApplied) {
+                        val statusText = when (project.applicationStatus) {
+                            "APPROVED" -> "Accepted"
+                            "REJECTED" -> "Declined"
+                            "PENDING" -> "Pending"
+                            else -> "Applied"
+                        }
+                        Text(statusText, color = Color.White, fontWeight = FontWeight.Bold)
+                    } else {
+                        Text("Apply", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }

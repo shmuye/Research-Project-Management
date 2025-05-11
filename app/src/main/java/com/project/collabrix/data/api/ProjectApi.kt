@@ -15,6 +15,7 @@ import retrofit2.http.Query
 import com.project.collabrix.data.dto.ProfileDto
 import com.project.collabrix.data.dto.ApplyToProjectRequest
 import com.project.collabrix.data.dto.ProjectSummary
+import retrofit2.Response
 
 interface ProjectApi {
     @GET("projects/me")
@@ -55,6 +56,15 @@ interface ProjectApi {
 
     @POST("applications")
     suspend fun applyToProject(@Body request: ApplyToProjectRequest): Application
+
+    @DELETE("applications/{projectId}/withdraw")
+    suspend fun withdrawApplication(@Path("projectId") projectId: Int): Response<Unit>
+
+    @PATCH("profile")
+    suspend fun updateProfile(@Body profile: Map<String, @JvmSuppressWildcards Any?>): ProfileDto
+
+    @DELETE("users/me")
+    suspend fun deleteAccount(): Response<Unit>
 }
 
 data class ApplicationStatusUpdate(val status: String) 

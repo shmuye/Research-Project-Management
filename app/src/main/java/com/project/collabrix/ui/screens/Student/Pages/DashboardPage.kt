@@ -26,6 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.presentation.StudentDashboardViewModel
 import com.project.collabrix.presentation.StudentDashboardUiState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.project.collabrix.ui.screens.Student.Pages.MyApplicationsScreen
 
 // Enum for navigation
 enum class StudentPage(val label: String) {
@@ -57,7 +60,13 @@ fun StudentDashboardScreen(
         drawerContent = {
             StudentSidebarContent(
                 selectedPage = selectedPage,
-                onSelectPage = { selectedPage = it },
+                onSelectPage = { page ->
+                    if (page == StudentPage.Profile) {
+                        navController.navigate("studentProfile")
+                    } else {
+                        selectedPage = page
+                    }
+                },
                 onLogout = {
                     scope.launch { drawerState.close() }
                     navController.navigate("landing") {
@@ -126,43 +135,44 @@ fun StudentDashboardScreen(
                                 }
                                 is StudentDashboardUiState.Success -> {
                                     val data = uiState as StudentDashboardUiState.Success
-                                    Column(
+                                    LazyColumn(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(16.dp),
-                                        horizontalAlignment = Alignment.Start
+                                        verticalArrangement = Arrangement.spacedBy(0.dp)
                                     ) {
-                                        Text(
-                                            text = "Student Dashboard",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 20.sp,
-                                            color = Color.Black
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "Welcome back, ${data.name}",
-                                            fontSize = 16.sp,
-                                            color = Color.Black
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        StatCard(title = "Applied Projects", value = data.appliedCount)
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        StatCard(title = "Active Projects", value = data.activeCount)
-                                        Spacer(modifier = Modifier.height(24.dp))
-                                        Text(
-                                            text = "Your Active Projects",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 18.sp,
-                                            color = Color.Black
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        if (data.activeProjects.isEmpty()) {
-                                            Text("No active projects found.", color = Color.Gray, fontSize = 16.sp)
-                                        } else {
-                                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                                data.activeProjects.forEach { project ->
-                                                    ProjectCardFigmaStyle(project = project, navController = navController)
-                                                }
+                                        item {
+                                            Text(
+                                                text = "Student Dashboard",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 20.sp,
+                                                color = Color.Black
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "Welcome back, ${data.name}",
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            StatCard(title = "Applied Projects", value = data.appliedCount)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            StatCard(title = "Active Projects", value = data.activeCount)
+                                            Spacer(modifier = Modifier.height(24.dp))
+                                            Text(
+                                                text = "Your Active Projects",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 18.sp,
+                                                color = Color.Black
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            if (data.activeProjects.isEmpty()) {
+                                                Text("No active projects found.", color = Color.Gray, fontSize = 16.sp)
+                                            }
+                                        }
+                                        if (data.activeProjects.isNotEmpty()) {
+                                            items(data.activeProjects) { project ->
+                                                ProjectCardFigmaStyle(project = project, navController = navController)
                                             }
                                         }
                                     }
@@ -171,6 +181,9 @@ fun StudentDashboardScreen(
                         }
                         StudentPage.BrowseResearch -> {
                             BrowseResearchScreen()
+                        }
+                        StudentPage.MyApplications -> {
+                            MyApplicationsScreen()
                         }
                         // Add other pages as needed
                         else -> {}
@@ -182,7 +195,7 @@ fun StudentDashboardScreen(
 }
 
 @Composable
-private fun StudentSidebarContent(
+fun StudentSidebarContent(
     selectedPage: StudentPage,
     onSelectPage: (StudentPage) -> Unit,
     onLogout: () -> Unit,

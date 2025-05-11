@@ -10,6 +10,7 @@ import com.project.collabrix.data.dto.Application
 import com.project.collabrix.data.api.ApplicationStatusUpdate
 import com.project.collabrix.data.dto.ProfileDto
 import com.project.collabrix.data.dto.ApplyToProjectRequest
+import retrofit2.Response
 
 class ProjectRepository @Inject constructor(
     private val api: ProjectApi
@@ -38,4 +39,18 @@ class ProjectRepository @Inject constructor(
 
     suspend fun applyToProject(projectId: Int): Application =
         api.applyToProject(ApplyToProjectRequest(projectId))
+
+    suspend fun withdrawApplication(projectId: Int): Response<Unit> = api.withdrawApplication(projectId)
+
+    suspend fun updateProfile(profile: ProfileDto): ProfileDto =
+        api.updateProfile(
+            mapOf(
+                "name" to profile.name,
+                "department" to profile.department,
+                "bio" to profile.bio,
+                "skills" to profile.skills
+            )
+        )
+
+    suspend fun deleteAccount(): Response<Unit> = api.deleteAccount()
 } 

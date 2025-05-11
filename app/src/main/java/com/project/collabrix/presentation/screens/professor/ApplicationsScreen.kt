@@ -44,7 +44,7 @@ fun ApplicationsScreen(
             .background(Color(0xFFF5F6FA))
         ) {
             when (uiState) {
-                is ApplicationsUiState.Loading -> {
+                is ApplicationsUiState.Loading, is ApplicationsUiState.StatusUpdated -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 is ApplicationsUiState.Error -> {
@@ -95,9 +95,6 @@ fun ApplicationsScreen(
                             }
                         }
                     }
-                }
-                is ApplicationsUiState.StatusUpdated -> {
-                    // Optionally show a snackbar or toast
                 }
             }
         }
