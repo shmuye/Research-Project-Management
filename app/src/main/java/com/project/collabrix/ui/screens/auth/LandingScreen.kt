@@ -10,85 +10,103 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.collabrix.R
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 
 @Composable
 fun LandingScreen(
     onGetStarted: () -> Unit
 ) {
-    val backgroundColor = Color(0xFFF5F6FA)
-    val primaryColor = Color(0xFF3B82F6)
-    val textColor = Color(0xFF1F2937)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
+            .background(Color.White)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
+            // Logo and Title Section
+            Column(
                 modifier = Modifier
-                    .size(120.dp)
-                    .padding(bottom = 24.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 64.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(40.dp)
+                )
+                
+                Spacer(modifier = Modifier.height(120.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Welcome to Collabrix",
+                        fontSize = 28.sp,
+                        fontFamily = FontFamily(Font(R.font.orbitron_bold)),
+                        color = Color.Black
+                    )
+
+                    Text(
+                        text = "Research Collaboration Made Easy",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+            }
+
+            // Banner Image
+            Image(
+                painter = painterResource(id = R.drawable.banner_image),
+                contentDescription = "Banner Image",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 40.dp)
             )
 
-            // Title
-            Text(
-                text = "Collabrix",
-                fontSize = 40.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor,
-                fontFamily = FontFamily.Default,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Subtitle
-            Text(
-                text = "Research Collaboration Made Easy",
-                fontSize = 18.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 48.dp)
-            )
-
-            // Description
+            // Description Text
             Text(
                 text = "Connect with researchers, share knowledge, and collaborate on groundbreaking projects.",
                 fontSize = 16.sp,
-                color = textColor,
+                color = Color.Black,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 48.dp)
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
+
+            Spacer(modifier = Modifier.height(70.dp))
 
             // Get Started Button
             Button(
                 onClick = onGetStarted,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .padding(horizontal = 70.dp)
+                    .padding(bottom = 32.dp)
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     text = "Get Started",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 16.sp,
+                    color = Color.White
                 )
             }
         }

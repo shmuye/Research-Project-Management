@@ -31,6 +31,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.project.collabrix.R
 import androidx.compose.foundation.Image
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -254,34 +256,25 @@ fun StudentProfileScreen(navController: NavHostController) {
                                         }
                                     }
                                 }
-                                // Danger Zone
+                                // About Me
                                 Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = Color(0xFFFFE5E5),
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                                ) {
-                                    Column(Modifier.padding(16.dp)) {
-                                        Text("Danger Zone", color = Color.Red, fontWeight = FontWeight.Bold)
-                                        Text("Actions here cannot be undone", color = Color.Red, fontSize = 13.sp)
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Button(
-                                            onClick = { showDeleteDialog = true },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
-                                            modifier = Modifier.fillMaxWidth(),
-                                            shape = RoundedCornerShape(8.dp)
-                                        ) {
-                                            Text("Delete Account", color = Color.White, fontWeight = FontWeight.Bold)
-                                        }
-                                    }
-                                }
-                                // About Me (bio)
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    shadowElevation = 4.dp,
                                     color = Color.White,
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 ) {
-                                    Column(Modifier.padding(16.dp)) {
-                                        Text("About Me", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Column(
+                                        Modifier.padding(16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            "About Me",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
                                         if (editMode) {
                                             OutlinedTextField(
                                                 value = profile.bio ?: "",
@@ -291,42 +284,113 @@ fun StudentProfileScreen(navController: NavHostController) {
                                                 shape = RoundedCornerShape(8.dp)
                                             )
                                         } else {
-                                            Text(profile.bio ?: "", color = Color.Black)
+                                            Text(
+                                                profile.bio ?: "",
+                                                color = Color.Black,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
                                         }
                                     }
                                 }
                                 // Skills
                                 Surface(
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    shadowElevation = 4.dp,
                                     color = Color.White,
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 ) {
-                                    Column(Modifier.padding(16.dp)) {
-                                        Text("Skills", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Column(
+                                        Modifier.padding(16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            "Skills",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
                                         if (editMode) {
                                             OutlinedTextField(
                                                 value = skillsText,
                                                 onValueChange = { skillsText = it },
                                                 label = { Text("Skills (comma separated)") },
-                                                placeholder = { Text("e.g. Kotlin, Java, Python") },
+                                                placeholder = { Text("e.g. Java, Python, Android") },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 shape = RoundedCornerShape(8.dp)
                                             )
                                         } else {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                profile.skills.forEach { skill ->
-                                                    Surface(
-                                                        shape = RoundedCornerShape(8.dp),
-                                                        color = Color.LightGray,
-                                                        shadowElevation = 2.dp
-                                                    ) {
-                                                        Text(skill, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.Center
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = spacedBy(8.dp)
+                                                ) {
+                                                    profile.skills.chunked(3).forEach { rowSkills ->
+                                                        Row(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            horizontalArrangement = Arrangement.Center,
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            rowSkills.forEach { skill ->
+                                                                Surface(
+                                                                    shape = RoundedCornerShape(8.dp),
+                                                                    color = Color.LightGray,
+                                                                    shadowElevation = 2.dp,
+                                                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                                                ) {
+                                                                    Text(
+                                                                        skill,
+                                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                Spacer(modifier = Modifier.weight(1f))
+                                // Danger Zone
+                                Surface(
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = Color(0xFFFEF2F2),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Column(Modifier.padding(16.dp)) {
+                                        Text(
+                                            "Danger Zone",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = Color.Red
+                                        )
+                                        Text(
+                                            "Actions here cannot be undone. Please proceed with caution.",
+                                            color = Color.Red.copy(alpha = 0.7f),
+                                            fontSize = 14.sp,
+                                            modifier = Modifier.padding(vertical = 4.dp)
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Button(
+                                            onClick = { showDeleteDialog = true },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                                            shape = RoundedCornerShape(8.dp),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Delete Account", color = Color.White)
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
                         is StudentProfileUiState.Saved -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
