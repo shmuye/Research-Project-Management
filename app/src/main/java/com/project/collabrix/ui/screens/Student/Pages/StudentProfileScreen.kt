@@ -1,7 +1,6 @@
 package com.project.collabrix.ui.screens.Student.Pages
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +19,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.collabrix.presentation.StudentProfileViewModel
 import com.project.collabrix.presentation.StudentProfileUiState
-import com.project.collabrix.data.dto.ProfileDto
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import com.project.collabrix.ui.screens.Student.Pages.StudentSidebarContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.res.painterResource
