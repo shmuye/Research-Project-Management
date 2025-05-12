@@ -5,17 +5,12 @@ data class UserManagementDto(
     val name: String,
     val email: String,
     val role: String,
-    val department: String,
-    val status: UserStatus
+    val department: String?,
+    val isActive: Boolean
 )
 
 enum class UserFilter {
     ALL_USERS,
     STUDENTS,
     PROFESSORS
-}
-
-enum class UserStatus {
-    ACTIVE,
-    INACTIVE
 } 

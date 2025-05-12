@@ -8,9 +8,10 @@ data class ProjectDetail(
     val startDate: String,
     val endDate: String,
     val deadline: String,
-    val students: List<Student> = emptyList(),
     val professorId: Int? = null,
-    val professorName: String? = null
+    val professorName: String? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 )
 
 data class Student(

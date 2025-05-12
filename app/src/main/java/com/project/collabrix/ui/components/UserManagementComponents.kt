@@ -1,10 +1,13 @@
 package com.project.collabrix.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.project.collabrix.data.dto.UserFilter
 import com.project.collabrix.data.dto.UserManagementDto
-import com.project.collabrix.data.dto.UserStatus
 
 @Composable
 fun UserSearchBar(
@@ -26,16 +28,9 @@ fun UserSearchBar(
     OutlinedTextField(
         value = searchQuery,
         onValueChange = onSearchQueryChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier.fillMaxWidth(),
         placeholder = { Text("Search users...") },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = Color.Gray
-        ),
         singleLine = true
     )
 }
@@ -47,32 +42,14 @@ fun UserFilterTabs(
     modifier: Modifier = Modifier
 ) {
     TabRow(
-        selectedTabIndex = UserFilter.values().indexOf(selectedFilter),
-        modifier = modifier.padding(horizontal = 16.dp),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.primary,
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                modifier = Modifier.tabIndicatorOffset(tabPositions[UserFilter.values().indexOf(selectedFilter)]),
-                height = 2.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        selectedTabIndex = selectedFilter.ordinal,
+        modifier = modifier
     ) {
         UserFilter.values().forEach { filter ->
             Tab(
                 selected = selectedFilter == filter,
                 onClick = { onFilterSelected(filter) },
-                text = {
-                    Text(
-                        text = when (filter) {
-                            UserFilter.ALL_USERS -> "All Users"
-                            UserFilter.STUDENTS -> "Students"
-                            UserFilter.PROFESSORS -> "Professors"
-                        },
-                        fontWeight = if (selectedFilter == filter) FontWeight.Bold else FontWeight.Normal
-                    )
-                }
+                text = { Text(filter.name.replace("_", " ")) }
             )
         }
     }
@@ -85,101 +62,100 @@ fun UserTable(
     onDeleteUser: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(8.dp),
-        shadowElevation = 2.dp
-    ) {
-        Column {
-            // Table Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F6FA))
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TableHeaderCell("Name", 3)
-                TableHeaderCell("Email", 3)
-                TableHeaderCell("Role", 2)
-                TableHeaderCell("Department", 2)
-                TableHeaderCell("Status", 1)
-                TableHeaderCell("Actions", 1)
-            }
-
-            // Table Content
-            users.forEach { user ->
-                UserTableRow(user = user, onDelete = { onDeleteUser(user.id) })
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.TableHeaderCell(text: String, weight: Int) {
-    Text(
-        text = text,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .weight(weight.toFloat())
-            .padding(horizontal = 4.dp)
-    )
-}
-
-@Composable
-private fun UserTableRow(
-    user: UserManagementDto,
-    onDelete: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = user.name, modifier = Modifier.weight(3f))
-        Text(text = user.email, modifier = Modifier.weight(3f))
-        Text(text = user.role, modifier = Modifier.weight(2f))
-        Text(text = user.department, modifier = Modifier.weight(2f))
-        StatusChip(status = user.status, modifier = Modifier.weight(1f))
-        IconButton(
-            onClick = onDelete,
-            modifier = Modifier.weight(1f)
+    Column(modifier = modifier) {
+        // Scroll hint
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Text(
+                "Scroll to see more",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete user",
-                tint = Color.Red
+                Icons.Default.KeyboardArrowRight,
+                contentDescription = "Scroll right",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
 
-@Composable
-private fun StatusChip(
-    status: UserStatus,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier.padding(horizontal = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = when (status) {
-            UserStatus.ACTIVE -> Color(0xFF4CAF50)
-            UserStatus.INACTIVE -> Color(0xFFFF5252)
-        }.copy(alpha = 0.1f)
-    ) {
-        Text(
-            text = status.name,
-            color = when (status) {
-                UserStatus.ACTIVE -> Color(0xFF4CAF50)
-                UserStatus.INACTIVE -> Color(0xFFFF5252)
-            },
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-            fontWeight = FontWeight.Medium
-        )
+        // Table
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+            ) {
+                Column {
+                    // Table Header
+                    Row(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(16.dp)
+                            .width(900.dp), // Fixed width to ensure scrolling
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text("Name", modifier = Modifier.weight(2f), fontWeight = FontWeight.Bold)
+                        Text("Email", modifier = Modifier.weight(2.5f), fontWeight = FontWeight.Bold)
+                        Text("Role", modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold)
+                        Text("Department", modifier = Modifier.weight(2f), fontWeight = FontWeight.Bold)
+                        Text("Status", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                        Text("Actions", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                    }
+
+                    // Table Content
+                    users.forEach { user ->
+                        Row(
+                            modifier = Modifier
+                                .width(900.dp) // Same fixed width as header
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(user.name ?: "", modifier = Modifier.weight(2f))
+                            Text(user.email, modifier = Modifier.weight(2.5f))
+                            Text(
+                                user.role,
+                                modifier = Modifier.weight(1.5f),
+                                color = if (user.role == "PROFESSOR") Color(0xFF9C27B0) else Color(0xFF1976D2)
+                            )
+                            Text(user.department ?: "", modifier = Modifier.weight(2f))
+                            Box(modifier = Modifier.weight(1f)) {
+                                Surface(
+                                    modifier = Modifier.padding(end = 8.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = if (user.isActive) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+                                ) {
+                                    Text(
+                                        if (user.isActive) "Active" else "Inactive",
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                        color = if (user.isActive) Color(0xFF4CAF50) else Color(0xFFF44336)
+                                    )
+                                }
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                IconButton(
+                                    onClick = { onDeleteUser(user.id) }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Delete user",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                        if (users.last() != user) {
+                            Divider(modifier = Modifier.width(900.dp))
+                        }
+                    }
+                }
+            }
+        }
     }
 } 

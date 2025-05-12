@@ -17,6 +17,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.project.collabrix.data.local.UserPreferences
 import com.project.collabrix.data.remote.AdminApiService
+import com.project.collabrix.data.remote.UserManagementApiService
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -84,4 +85,10 @@ object NetworkModule {
     @Singleton
     fun provideAdminApiService(retrofit: Retrofit): AdminApiService =
         retrofit.create(AdminApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserManagementApiService(retrofit: Retrofit): UserManagementApiService {
+        return retrofit.create(UserManagementApiService::class.java)
+    }
 } 

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateProfileDto } from 'src/profile/dto/update-profile.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -56,6 +57,22 @@ export class UserService {
                 email: true,
                 name: true,
                 role: true,
+                department: true,
+                isActive: true,
+            },
+        });
+    }
+
+    async getUsersByRole(role: Role) {
+        return this.prisma.user.findMany({
+            where: { role },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                department: true,
+                isActive: true,
             },
         });
     }

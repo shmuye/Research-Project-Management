@@ -31,6 +31,18 @@ export class UserController {
     }
 
     @Roles(Role.ADMIN)
+    @Get('role/students')
+    getStudents() {
+        return this.userService.getUsersByRole(Role.STUDENT);
+    }
+
+    @Roles(Role.ADMIN)
+    @Get('role/professors')
+    getProfessors() {
+        return this.userService.getUsersByRole(Role.PROFESSOR);
+    }
+
+    @Roles(Role.ADMIN)
     @Get(':id')
     getUserById(@Param('id') id: string) {
         return this.userService.getUserById(+id);

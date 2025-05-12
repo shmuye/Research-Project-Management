@@ -1,6 +1,6 @@
 package com.project.collabrix.data.repository
 
-import com.project.collabrix.data.api.UserManagementApiService
+import com.project.collabrix.data.remote.UserManagementApiService
 import com.project.collabrix.data.dto.UserManagementDto
 import javax.inject.Inject
 

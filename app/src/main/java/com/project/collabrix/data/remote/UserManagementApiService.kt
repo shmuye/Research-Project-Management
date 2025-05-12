@@ -10,10 +10,10 @@ interface UserManagementApiService {
     @GET("users")
     suspend fun getAllUsers(): List<UserManagementDto>
 
-    @GET("users/students")
+    @GET("users/role/students")
     suspend fun getStudents(): List<UserManagementDto>
 
-    @GET("users/professors")
+    @GET("users/role/professors")
     suspend fun getProfessors(): List<UserManagementDto>
 
     @DELETE("users/{userId}")

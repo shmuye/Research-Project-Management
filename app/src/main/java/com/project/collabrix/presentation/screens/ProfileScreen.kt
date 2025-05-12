@@ -1,31 +1,28 @@
 package com.project.collabrix.presentation.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.project.collabrix.R
 import com.project.collabrix.presentation.ProfileUiState
 import com.project.collabrix.presentation.ProfileViewModel
 import com.project.collabrix.data.dto.UserProfileUpdate
 import androidx.navigation.NavController
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,56 +35,72 @@ fun ProfileScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var editMode by remember { mutableStateOf(false) }
 
-    // Declare state variables at the top, using null-safe access
     val profile = (uiState as? ProfileUiState.Success)?.profile
-    var name by remember { mutableStateOf(profile?.name ?: "") }
-    var department by remember { mutableStateOf(profile?.department ?: "") }
-    var bio by remember { mutableStateOf(profile?.bio ?: "") }
-    var researchInterests by remember { mutableStateOf(profile?.getResearchInterestsList() ?: emptyList()) }
-    var researchInterestsText by remember { mutableStateOf(researchInterests.joinToString(", ")) }
+    var name by remember(profile) { mutableStateOf(profile?.name ?: "") }
+    var department by remember(profile) { mutableStateOf(profile?.department ?: "") }
+    var bio by remember(profile) { mutableStateOf(profile?.bio ?: "") }
+    var researchInterests by remember(profile) { mutableStateOf(profile?.getResearchInterestsList() ?: emptyList()) }
+    var researchInterestsText by remember(profile) { mutableStateOf(profile?.getResearchInterestsList()?.joinToString(", ") ?: "") }
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF5F6FA)
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF5F6FA)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 32.dp)
-        ) {
-            // Top Bar (only one hamburger menu)
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
+    // Update research interests when text changes
+    LaunchedEffect(researchInterestsText) {
+        if (editMode) {
+            researchInterests = researchInterestsText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        }
+    }
+
+    when (uiState) {
+        is ProfileUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { 
+            CircularProgressIndicator() 
+        }
+        is ProfileUiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text((uiState as ProfileUiState.Error).message, color = Color.Red)
+        }
+        is ProfileUiState.Deleted -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Account deleted.", color = Color.Red)
+        }
+        is ProfileUiState.Success -> {
+            val scrollState = rememberScrollState()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF5F6FA))
+                    .verticalScroll(scrollState)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Profile Settings",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                )
+                Text(
+                    text = "Manage your personal information and account",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
+                )
+
+                // Edit/Cancel and Save buttons
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "manage your personal information and account",
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(start = 16.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
                         onClick = { editMode = !editMode },
-                        shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                        modifier = Modifier.height(32.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.height(36.dp)
                     ) {
                         Text(if (editMode) "Cancel" else "Edit Profile", color = Color.White, fontSize = 14.sp)
                     }
@@ -105,236 +118,193 @@ fun ProfileScreen(
                                 )
                                 editMode = false
                             },
-                            shape = RoundedCornerShape(6.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                            modifier = Modifier.height(32.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(36.dp)
                         ) {
                             Text("Save", color = Color.White, fontSize = 14.sp)
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            // Profile Card
-            item {
-                when (uiState) {
-                    is ProfileUiState.Loading -> {
-                        Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+
+                // Profile Card
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 4.dp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Avatar
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFF3F4F6)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.AccountCircle, contentDescription = "Avatar", modifier = Modifier.size(64.dp), tint = Color.Black)
                         }
-                    }
-                    is ProfileUiState.Error -> {
-                        Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = (uiState as ProfileUiState.Error).message,
-                                color = MaterialTheme.colorScheme.error
+                        Spacer(modifier = Modifier.height(8.dp))
+                        if (editMode) {
+                            OutlinedTextField(
+                                value = name,
+                                onValueChange = { name = it },
+                                label = { Text("Name") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(8.dp)
                             )
-                        }
-                    }
-                    is ProfileUiState.Deleted -> {
-                        if (navController != null) {
-                            LaunchedEffect(Unit) {
-                                navController.navigate("landing") {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            }
                         } else {
-                        onAccountDeleted()
+                            Text(name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        // Role label
+                        Box(
+                            modifier = Modifier
+                                .background(Color.Black, RoundedCornerShape(8.dp))
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text(profile?.role ?: "PROFESSOR", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(profile?.email ?: "", color = Color.Black)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        if (editMode) {
+                            OutlinedTextField(
+                                value = department,
+                                onValueChange = { department = it },
+                                label = { Text("Department") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                        } else {
+                            Text(department, color = Color.Black)
                         }
                     }
-                    is ProfileUiState.Success -> {
-                        val email = profile?.email
-                        val role = profile?.role
-                        // Profile Card
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
-                                .background(Color.White)
-                                .padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFF3F4F6)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Default.AccountCircle, contentDescription = "Avatar", modifier = Modifier.size(64.dp), tint = Color(0xFF9CA3AF))
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (editMode) {
-                                OutlinedTextField(
-                                    value = name,
-                                    onValueChange = { name = it },
-                                    label = { Text("Full Name") },
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                            } else {
-                                Text(name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Box(
-                                modifier = Modifier
-                                    .background(Color.Black, RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                            ) {
-                                Text(role ?: "", color = Color.White, fontSize = 13.sp)
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(email ?: "", fontSize = 14.sp, color = Color.Black)
-                            if (editMode) {
-                                OutlinedTextField(
-                                    value = department,
-                                    onValueChange = { department = it },
-                                    label = { Text("Department") },
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                            } else if (department.isNotBlank()) {
-                                Text("Department of $department", fontSize = 14.sp, color = Color.Black)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        // About Me
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
-                                .background(Color.White)
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "About Me",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color.Black,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                }
+
+                // About Me
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 4.dp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("About Me", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        if (editMode) {
+                            OutlinedTextField(
+                                value = bio,
+                                onValueChange = { bio = it },
+                                label = { Text("About Me") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp)
                             )
-                            if (editMode) {
-                                OutlinedTextField(
-                                    value = bio,
-                                    onValueChange = { bio = it },
-                                    label = { Text("Bio") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp),
-                                    minLines = 3,
-                                    maxLines = 5
-                                )
-                            } else {
-                                Text(
-                                    bio,
-                                    fontSize = 14.sp,
-                                    color = Color.Black,
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                                )
-                            }
+                        } else {
+                            Text(bio, color = Color.Black)
                         }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        // Research Interests
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
-                                .background(Color.White)
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Research Interests",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color.Black,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                    }
+                }
+
+                // Research Interests
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 4.dp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Research Interests", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        if (editMode) {
+                            OutlinedTextField(
+                                value = researchInterestsText,
+                                onValueChange = { researchInterestsText = it },
+                                label = { Text("Research Interests (comma separated)") },
+                                placeholder = { Text("e.g. Machine Learning, Data Science, AI") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp)
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (editMode) {
-                                OutlinedTextField(
-                                    value = researchInterestsText,
-                                    onValueChange = {
-                                        researchInterestsText = it
-                                        researchInterests = it.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() }
-                                    },
-                                    label = { Text("Research Interests (comma separated)") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                            } else {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
-                                    researchInterests.forEach { interest ->
-                                        Box(
-                                            modifier = Modifier
-                                                .background(Color(0xFFF3F4F6), RoundedCornerShape(20.dp))
-                                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                                .align(Alignment.CenterVertically)
-                                        ) {
-                                            Text(interest, color = Color.Black, fontSize = 14.sp)
-                                        }
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                researchInterests.forEach { interest ->
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = Color.LightGray,
+                                        shadowElevation = 2.dp
+                                    ) {
+                                        Text(interest, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
                                     }
                                 }
                             }
                         }
                     }
-                    else -> {}
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-            // Danger Zone
-            item {
-                if (uiState is ProfileUiState.Success) {
-                    var showDeleteDialog by remember { mutableStateOf(false) }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFFF1F2), RoundedCornerShape(8.dp))
-                            .padding(16.dp)
-                    ) {
-                        Text("Danger Zone", color = Color(0xFFDC2626), fontWeight = FontWeight.Bold)
-                        Text("Actions  here cannot be undone", color = Color(0xFFDC2626), fontSize = 13.sp)
+
+                // Danger Zone
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFFFEF2F2),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Danger Zone", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Red)
+                        Text(
+                            "Actions here cannot be undone. Please proceed with caution.",
+                            color = Color.Red.copy(alpha = 0.7f),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = { showDeleteDialog = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
-                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Delete Account", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("Delete Account", color = Color.White)
                         }
                     }
-                    if (showDeleteDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showDeleteDialog = false },
-                            title = { Text("Delete Account") },
-                            text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        showDeleteDialog = false
-                                        (viewModel as ProfileViewModel).deleteAccount()
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
-                                ) {
-                                    Text("Delete", color = Color.White)
-                                }
-                            },
-                            dismissButton = {
-                                OutlinedButton(onClick = { showDeleteDialog = false }) {
-                                    Text("Cancel")
-                                }
-                            }
-                        )
-                    }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
             }
         }
+        is ProfileUiState.Saved -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Profile saved!", color = Color(0xFF22C55E))
+        }
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Account") },
+            text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteAccount()
+                        showDeleteDialog = false
+                        onAccountDeleted()
+                    }
+                ) { Text("Yes, Delete", color = Color.Red) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 } 

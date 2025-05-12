@@ -79,9 +79,9 @@ class UserManagementViewModel @Inject constructor(
             users
         } else {
             users.filter { user ->
-                user.name.contains(query, ignoreCase = true) ||
+                user.name?.contains(query, ignoreCase = true) == true ||
                 user.email.contains(query, ignoreCase = true) ||
-                user.department.contains(query, ignoreCase = true)
+                user.department?.contains(query, ignoreCase = true) == true
             }
         }
     }

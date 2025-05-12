@@ -21,17 +21,47 @@ export class ProjectService {
     }
 
     async findOne(id: number) {
-        return this.prisma.project.findUnique({
+        const project = await this.prisma.project.findUnique({
             where: { id },
+            include: {
+                professor: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
+
+        if (!project) {
+            throw new NotFoundException('Project not found');
+        }
+
+        return {
+            ...project,
+            professorName: project.professor.name,
+            professor: undefined // Remove the nested professor object
+        };
     }
 
     async findMyProjects(professorId: number) {
-        return this.prisma.project.findMany({
+        const projects = await this.prisma.project.findMany({
             where: {
                 professorId,
             },
+            include: {
+                professor: {
+                    select: {
+                        name: true,
+                    }
+                }
+            }
         });
+
+        return projects.map(project => ({
+            ...project,
+            professorName: project.professor.name,
+            professor: undefined // Remove the nested professor object
+        }));
     }
 
 
