@@ -1,9 +1,6 @@
 package com.project.collabrix.ui.screens.professor.applications
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicText
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
