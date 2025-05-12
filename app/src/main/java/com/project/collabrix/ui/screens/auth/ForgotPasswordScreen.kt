@@ -50,20 +50,21 @@ fun ForgotPasswordScreen(
             IconButton(onClick = onBackToLogin) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    tint = Color.Black // <- Ensures black icon color
                 )
             }
-
 
             Text(
                 text = "Collabrix",
                 fontFamily = FontFamily(Font(R.font.orbitron_bold)),
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                color = Color.Black // <- Ensures black text color
             )
 
             Image(
-                painter = painterResource(id = R.drawable.app_logo), // Replace with your right-side logo
+                painter = painterResource(id = R.drawable.app_logo),
                 contentDescription = "Logo",
                 modifier = Modifier.size(28.dp)
             )
@@ -123,14 +124,16 @@ fun ForgotPasswordScreen(
             Button(
                 onClick = onResetPassword,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black, // <- Button background
+                    contentColor = Color.White     // <- Text inside button
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
                 Text(
                     text = "Send Reset Link",
-                    color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -149,3 +152,4 @@ fun ForgotPasswordScreen(
         }
     }
 }
+
