@@ -57,12 +57,14 @@ fun StudentProfileScreen(navController: NavHostController) {
                         scope.launch { drawerState.close() }
                     } else {
                         selectedPage = page
+
                         when (page) {
                             StudentPage.Dashboard -> navController.navigate("student_main")
                             StudentPage.BrowseResearch -> navController.navigate("student_main")
                             StudentPage.MyApplications -> navController.navigate("student_main")
                             else -> {}
                         }
+                        
                         scope.launch { drawerState.close() }
                     }
                 },
