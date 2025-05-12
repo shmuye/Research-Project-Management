@@ -17,7 +17,7 @@ data class SigninRequestDto(
 
 data class AuthResponseDto(
     val tokens: AuthTokensDto,
-    val user: UserDto
+    val user: AuthUserDto
 )
 
 data class AuthTokensDto(
@@ -25,7 +25,7 @@ data class AuthTokensDto(
     val refresh_token: String
 )
 
-data class UserDto(
+data class AuthUserDto(
     val id: Int,
     val email: String,
     val firstName: String,
@@ -40,6 +40,6 @@ fun AuthResponseDto.toDomain(): Pair<AuthTokens, User> {
     )
 }
 
-fun UserDto.toDomain(): User {
+fun AuthUserDto.toDomain(): User {
     return User(id, email, firstName, lastName)
 } 

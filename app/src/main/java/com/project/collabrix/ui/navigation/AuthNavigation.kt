@@ -116,7 +116,8 @@ fun AuthNavigation(navController: NavHostController) {
                     navController.navigate(AuthScreen.Landing.route) {
                         popUpTo(AuthScreen.AdminMain.route) { inclusive = true }
                     }
-                }
+                },
+                navController = navController
             )
         }
 

@@ -7,7 +7,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         super({
             datasources: {
                 db: {
-                    url: "postgresql://localhost:4398@localhost:5434/postgres?schema=public",
+                    url: "postgresql://postgres:1234@localhost:5432/recollapp?schema=public",
                 }
             }
         })
